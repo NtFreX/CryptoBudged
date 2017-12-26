@@ -97,6 +97,7 @@
     <Compile Include="Models\FileStoreModel.cs" />
     <Compile Include="Models\HoldingModel.cs" />
     <Compile Include="Services\CryptoCurrencyService.cs" />
+    <Compile Include="Models\PriceModel.cs" />
     <Compile Include="Views\DepositWithdrawlDialog.xaml.cs">
       <DependentUpon>DepositWithdrawlDialog.xaml</DependentUpon>
     </Compile>
