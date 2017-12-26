@@ -1,73 +1,57 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Threading;
 using CryptoBudged.Services;
 using LiveCharts;
 using LiveCharts.Wpf;
+using Prism.Commands;
 using Prism.Mvvm;
 
 namespace CryptoBudged.Views.Widgets
 {
     public class PieChartHoldingsInChfWidgetViewModel : BindableBase
     {
-        private readonly Dispatcher _dispatcher;
-
         private SeriesCollection _holdingsPieChartSeries;
-
+        
         public SeriesCollection HoldingsPieChartSeries
         {
             get => _holdingsPieChartSeries;
             set => SetProperty(ref _holdingsPieChartSeries, value);
         }
+        
+        public DelegateCommand RefreshChartCommand { get; }
 
         public PieChartHoldingsInChfWidgetViewModel()
         {
-            _dispatcher = Dispatcher.CurrentDispatcher;
+            RefreshChartCommand = new DelegateCommand(ExecuteRefreshChartCommand);
 
-            Task.Run(ReloadPieCharWorker);
+            CalculatePieChart();
         }
 
-        private async Task ReloadPieCharWorker()
+        private void ExecuteRefreshChartCommand()
         {
-            while (true)
-            {
-                try
-                {
-                    CalculatePieChart();
-                    await Task.Delay(10000);
-                }
-                catch
-                {
-                    /* IGNORE */
-                }
-            }
+            CalculatePieChart();
         }
-
+        
         private void CalculatePieChart()
         {
             if (HoldingsPieChartSeries == null)
                 HoldingsPieChartSeries = new SeriesCollection();
-
-            _dispatcher.Invoke(() =>
+            
+            foreach (var holding in HoldingsService.Instance.CalculateHoldings())
             {
-                var series = HoldingsPieChartSeries;
-                foreach (var holding in HoldingsService.Instance.CalculateHoldings())
+                if (HoldingsPieChartSeries.Any(x => x.Title == holding.Currency.ToString()))
                 {
-                    if (series.Any(x => x.Title == holding.Currency.ToString()))
-                    {
-                        var value = series.First(x => x.Title == holding.Currency.ToString());
-                        value.Values = new ChartValues<double>(new[] {holding.AmountInChf});
-                    }
-                    else
-                    {
-                        series.Add(new PieSeries
-                        {
-                            Values = new ChartValues<double>(new[] {holding.AmountInChf}),
-                            Title = holding.Currency.ToString()
-                        });
-                    }
+                    var value = HoldingsPieChartSeries.First(x => x.Title == holding.Currency.ToString());
+                    value.Values = new ChartValues<double>(new[] {holding.AmountInChf});
                 }
-            });
+                else
+                {
+                    HoldingsPieChartSeries.Add(new PieSeries
+                    {
+                        Values = new ChartValues<double>(new[] {holding.AmountInChf}),
+                        Title = holding.Currency.ToString()
+                    });
+                }
+            }
         }
     }
 }

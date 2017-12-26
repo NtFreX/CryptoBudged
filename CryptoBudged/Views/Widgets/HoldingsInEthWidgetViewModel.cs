@@ -17,10 +17,10 @@ namespace CryptoBudged.Views.Widgets
         
         public HoldingsInEthWidgetViewModel()
         {
-            Task.Run(ReloadHoldingsWorker);
+            Task.Run(ReloadWidgetWorker);
         }
 
-        private async Task ReloadHoldingsWorker()
+        private async Task ReloadWidgetWorker()
         {
             while (true)
             {

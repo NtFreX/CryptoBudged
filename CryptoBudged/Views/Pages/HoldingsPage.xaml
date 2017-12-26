@@ -9,6 +9,13 @@
              xmlns:widgets="clr-namespace:CryptoBudged.Views.Widgets"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+
+        <DataTemplate x:Key="CurrencyItemCellTemplate">
+            <Image Source="{Binding}" />
+        </DataTemplate>
+    </UserControl.Resources>
+    
     <DockPanel LastChildFill="True">
         <materialDesign:Card Margin="4" Padding="8" DockPanel.Dock="Top">
             <StackPanel Orientation="Horizontal">
@@ -21,6 +28,13 @@
         <controls:AdvancedGrid Margin="10,0,10,10" ItemsSource="{Binding Holdings}">
             <controls:AdvancedGrid.View>
                 <GridView>
+                    <GridViewColumn Header="" Width="32" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding Currency.ImagePath}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                     <GridViewColumn Header="Currency" Width="120" DisplayMemberBinding="{Binding Currency}" />
                     <GridViewColumn Header="Amount" Width="100" DisplayMemberBinding="{Binding Amount}" />
                     <GridViewColumn Header="Amount in CHF" Width="130" DisplayMemberBinding="{Binding AmountInChf}" />

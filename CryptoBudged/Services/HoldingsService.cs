@@ -84,7 +84,7 @@ namespace CryptoBudged.Services
                     }));
                 }
 
-                if (!Task.WaitAll(tasks.ToArray(), new TimeSpan(0, 1, 0)))
+                if (!Task.WaitAll(tasks.ToArray(), new TimeSpan(0, 0, 30)))
                 {
                     throw new TaskCanceledException();
                 }

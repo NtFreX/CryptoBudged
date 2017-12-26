@@ -44,11 +44,9 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            
-                            <widgets:PieChartHoldingsInChf Grid.Column="0" />
-                            <lvc:CartesianChart LegendLocation="Bottom"  Grid.Column="1" Series="{Binding HistoricalHoldingsLineChartSeries}" />
+
+                            <widgets:PieChartHoldingsInChfWidget Grid.Column="0" />
                         </Grid>
                     </DockPanel>
                 </TabItem>

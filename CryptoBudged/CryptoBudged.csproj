@@ -112,6 +112,14 @@
       <DependentUpon>PieChartHoldingsInChfWidget.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Widgets\PieChartHoldingsInChfWidgetViewModel.cs" />
+    <Compile Include="Views\Widgets\StackedCryptoDevelopmentWidget.xaml.cs">
+      <DependentUpon>StackedCryptoDevelopmentWidget.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Widgets\StackedCryptoDevelopmentWidgetViewModel.cs" />
+    <Compile Include="Views\Widgets\StackedIncomeInChfWidget.xaml.cs">
+      <DependentUpon>StackedIncomeInChfWidget.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Widgets\StackedIncomeInChfWidgetViewModel.cs" />
     <Page Include="Controls\AdvancedGrid.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -180,6 +188,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Widgets\PieChartHoldingsInChfWidget.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Widgets\StackedCryptoDevelopmentWidget.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Widgets\StackedIncomeInChfWidget.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -34,7 +34,16 @@
                     <GridViewColumn Header="Target adress" Width="120" DisplayMemberBinding="{Binding TargetAdress}" />
                     <GridViewColumn Header="Target Platform" Width="130" DisplayMemberBinding="{Binding TargetPlatform}" />
                     <GridViewColumn Header="Amount" Width="130" DisplayMemberBinding="{Binding Amount}" />
-                    <GridViewColumn Header="Currency" Width="130" DisplayMemberBinding="{Binding Currency}" />
+                    <GridViewColumn Header="Currency" Width="160" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding Currency.ImagePath}" Height="25" Width="25" />
+                                    <Label Content="{Binding Currency}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                     <GridViewColumn Header="Fees" Width="140" DisplayMemberBinding="{Binding Fees}" />
                     <GridViewColumn Header="Withdraw from holdings" Width="190" DisplayMemberBinding="{Binding WithDrawFromHoldings}" />
                     <GridViewColumn Header="Date/Time" Width="160" DisplayMemberBinding="{Binding DateTime}" />

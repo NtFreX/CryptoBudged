@@ -31,10 +31,28 @@
         <controls:AdvancedGrid Margin="12,0,12,12" ItemsSource="{Binding Exchanges}">
             <controls:AdvancedGrid.View>
                 <GridView>
-                    <GridViewColumn Header="Origin currency" Width="140" DisplayMemberBinding="{Binding OriginCurrency}" />
+                    <GridViewColumn Header="Origin currency" Width="160" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding OriginCurrency.ImagePath}" Height="25" Width="25" />
+                                    <Label Content="{Binding OriginCurrency}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                     <GridViewColumn Header="Origin amount" Width="140" DisplayMemberBinding="{Binding OriginAmount}" />
                     <GridViewColumn Header="Exchange rate" Width="140" DisplayMemberBinding="{Binding ExchangeRate}" />
-                    <GridViewColumn Header="Target currency" Width="140" DisplayMemberBinding="{Binding TargetCurrency}" />
+                    <GridViewColumn Header="Target currency" Width="160" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding TargetCurrency.ImagePath}" Height="25" Width="25" />
+                                    <Label Content="{Binding TargetCurrency}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                     <GridViewColumn Header="Target amount" Width="140" DisplayMemberBinding="{Binding TargetAmount}" />
                     <GridViewColumn Header="Fees" Width="80" DisplayMemberBinding="{Binding Fees}" />
                     <GridViewColumn Header="Exchange platform" Width="160" DisplayMemberBinding="{Binding ExchangePlatform}" />

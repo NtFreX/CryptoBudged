@@ -5,9 +5,9 @@ namespace CryptoBudged.Views.Widgets
     /// <summary>
     /// Interaction logic for PieChartHoldingsInChf.xaml
     /// </summary>
-    public partial class PieChartHoldingsInChf : UserControl
+    public partial class PieChartHoldingsInChfWidget : UserControl
     {
-        public PieChartHoldingsInChf()
+        public PieChartHoldingsInChfWidget()
         {
             InitializeComponent();
             DataContext = new PieChartHoldingsInChfWidgetViewModel();
