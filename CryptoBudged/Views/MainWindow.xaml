@@ -17,6 +17,8 @@
         FontFamily="{DynamicResource MaterialDesignFont}">
     
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
         <DataTemplate x:Key="DeleteExchangeCellTemplate">
             <Button Margin="0" Command="{Binding DataContext.DeteleExchangeCommand, RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}}" CommandParameter="{Binding}">X</Button>
         </DataTemplate>
@@ -53,6 +55,14 @@
                 <DockPanel>
                     <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}">Crypto Budget</TextBlock>
                 </DockPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card DockPanel.Dock="Top" Margin="8,0,8,8" Padding="12,4,4,4" Visibility="{Binding HasHoldingsCalculationError, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Foreground="Red">The holdings could not be calculated</TextBlock>
+            </materialDesign:Card>
+
+            <materialDesign:Card DockPanel.Dock="Top" Margin="8,0,8,8" Padding="12,4,4,4" Visibility="{Binding HasDashboardCalculationError, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Foreground="Red">The dashboard could not be calculated</TextBlock>
             </materialDesign:Card>
 
             <TabControl Margin="14,0,14,14">

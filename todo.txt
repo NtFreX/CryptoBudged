@@ -14,3 +14,4 @@ cleaup
  - seperate MainView into different views
  - cleanup MainViewModel.cs
  - seperate view and viewmodel code
+ - add dependency injection service

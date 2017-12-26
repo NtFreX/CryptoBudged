@@ -13,8 +13,6 @@ using CryptoBudged.Models;
 using CryptoBudged.Services;
 using LiveCharts;
 using LiveCharts.Defaults;
-using LiveCharts.Helpers;
-using LiveCharts.SeriesAlgorithms;
 using LiveCharts.Wpf;
 using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json;
@@ -80,6 +78,8 @@ namespace CryptoBudged.Views
         private double _totalAmountInETH;
         private SeriesCollection _holdingsPieChartSeries;
         private SeriesCollection _historicalHoldingsLineChartSeries;
+        private bool _hasHoldingsCalculationError;
+        private bool _hasDashboardCalculationError;
 
         public DelegateCommand AddExchange { get; }
         public DelegateCommand AddDepositWithdrawl { get; }
@@ -88,6 +88,16 @@ namespace CryptoBudged.Views
         public DelegateCommand<object> EditExchangeCommand { get; set; }
         public DelegateCommand<object> EditDepositWithdrawlCommand { get; set; }
 
+        public bool HasDashboardCalculationError
+        {
+            get => _hasDashboardCalculationError;
+            set => SetProperty(ref _hasDashboardCalculationError, value);
+        }
+        public bool HasHoldingsCalculationError
+        {
+            get => _hasHoldingsCalculationError;
+            set => SetProperty(ref _hasHoldingsCalculationError, value);
+        }
         public SeriesCollection HistoricalHoldingsLineChartSeries
         {
             get => _historicalHoldingsLineChartSeries;
@@ -166,8 +176,16 @@ namespace CryptoBudged.Views
         {
             while (true)
             {
-                await Task.Delay(1000);
-                CalculateHoldings();
+                try
+                {
+                    await Task.Delay(5000);
+                    CalculateHoldings();
+                    HasHoldingsCalculationError = false;
+                }
+                catch
+                {
+                    HasHoldingsCalculationError = true;
+                }
             }
         }
 
@@ -175,8 +193,16 @@ namespace CryptoBudged.Views
         {
             while (true)
             {
-                await Task.Delay(5000);
-                CalculatePieChart();
+                try
+                {
+                    await Task.Delay(10000);
+                    CalculatePieChart();
+                    HasDashboardCalculationError = false;
+                }
+                catch
+                {
+                    HasDashboardCalculationError = true;
+                }
             }
         }
 
@@ -396,8 +422,11 @@ namespace CryptoBudged.Views
                 }));
             }
 
-            Task.WaitAll(tasks.ToArray());
-
+            if (!Task.WaitAll(tasks.ToArray(), new TimeSpan(0, 1, 0)))
+            {
+                throw new TaskCanceledException();
+            }
+            
             TotalAmountInCHF = holdings.Sum(x => x.AmountInChf);
             TotalAmountInBTC = holdings.Sum(x => x.AmountInBtc);
             TotalAmountInETH = holdings.Sum(x => x.AmountInEth);
