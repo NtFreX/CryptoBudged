@@ -31,7 +31,10 @@ namespace CryptoBudged.Services
             var result = await _httpClient.GetStringAsync(url);
             lock (_lockObj)
             {
-                _lastRequests.Add(url, (DateTime.Now, result));
+                if (!_lastRequests.ContainsKey(url))
+                {
+                    _lastRequests.Add(url, (DateTime.Now, result));
+                }
             }
             return result;
         }

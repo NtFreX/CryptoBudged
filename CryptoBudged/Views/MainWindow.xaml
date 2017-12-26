@@ -8,6 +8,8 @@
         Height="500" Width="1200"
         
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:pages="clr-namespace:CryptoBudged.Views.Pages"
+        xmlns:widgets="clr-namespace:CryptoBudged.Views.Widgets"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
@@ -16,53 +18,12 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}">
     
-    <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-
-        <DataTemplate x:Key="DeleteExchangeCellTemplate">
-            <Button Margin="0" Command="{Binding DataContext.DeteleExchangeCommand, RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}}" CommandParameter="{Binding}">X</Button>
-        </DataTemplate>
-
-        <DataTemplate x:Key="EditExchangeCellTemplate">
-            <Button Margin="0" Command="{Binding DataContext.EditExchangeCommand, RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}}" CommandParameter="{Binding}">≡</Button>
-        </DataTemplate>
-
-        <DataTemplate x:Key="DeleteDepositWithdrawlCellTemplate">
-            <Button Margin="0" Command="{Binding DataContext.DeleteDepositWithdrawlCommand, RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}}" CommandParameter="{Binding}">X</Button>
-        </DataTemplate>
-
-        <DataTemplate x:Key="EditDepositWithdrawlCellTemplate">
-            <Button Margin="0" Command="{Binding DataContext.EditDepositWithdrawlCommand, RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}}" CommandParameter="{Binding}">≡</Button>
-        </DataTemplate>
-
-        <DataTemplate x:Key="HeaderTemplateArrowUp">
-            <DockPanel LastChildFill="True" Width="{Binding ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type GridViewColumnHeader}}}">
-                <Path x:Name="arrowUp" StrokeThickness="1" Fill="Gray" Data="M 5,10 L 15,10 L 10,5 L 5,10" DockPanel.Dock="Right" Width="20" HorizontalAlignment="Right" Margin="5,0,5,0" SnapsToDevicePixels="True"/>
-                <TextBlock Text="{Binding }" />
-            </DockPanel>
-        </DataTemplate>
-
-        <DataTemplate x:Key="HeaderTemplateArrowDown">
-            <DockPanel LastChildFill="True" Width="{Binding ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type GridViewColumnHeader}}}">
-                <Path x:Name="arrowDown" StrokeThickness="1" Fill="Gray"  Data="M 5,5 L 10,10 L 15,5 L 5,5" DockPanel.Dock="Right" Width="20" HorizontalAlignment="Right" Margin="5,0,5,0" SnapsToDevicePixels="True"/>
-                <TextBlock Text="{Binding }" />
-            </DockPanel>
-        </DataTemplate>
-    </Window.Resources>
     <materialDesign:DialogHost>
         <DockPanel  LastChildFill="True">
             <materialDesign:Card Padding="12" Margin="8" DockPanel.Dock="Top">
                 <DockPanel>
                     <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}">Crypto Budget</TextBlock>
                 </DockPanel>
-            </materialDesign:Card>
-
-            <materialDesign:Card DockPanel.Dock="Top" Margin="8,0,8,8" Padding="12,4,4,4" Visibility="{Binding HasHoldingsCalculationError, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock Foreground="Red">The holdings could not be calculated</TextBlock>
-            </materialDesign:Card>
-
-            <materialDesign:Card DockPanel.Dock="Top" Margin="8,0,8,8" Padding="12,4,4,4" Visibility="{Binding HasDashboardCalculationError, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock Foreground="Red">The dashboard could not be calculated</TextBlock>
             </materialDesign:Card>
 
             <TabControl Margin="14,0,14,14">
@@ -72,113 +33,45 @@
                     </TabItem.Header>
 
                     <DockPanel LastChildFill="True">
-
-                        <materialDesign:Card Margin="4" Padding="8" DockPanel.Dock="Top">
+                        <materialDesign:Card DockPanel.Dock="Top" Margin="4" Padding="8">
                             <StackPanel Orientation="Horizontal">
-                                <Label FontWeight="Bold">In CHF</Label>
-                                <Label Content="{Binding TotalAmountInCHF}" />
-                                <Label FontWeight="Bold">In BTC</Label>
-                                <Label Content="{Binding TotalAmountInBTC}" />
-                                <Label FontWeight="Bold">In ETH</Label>
-                                <Label Content="{Binding TotalAmountInETH}" />
+                                <widgets:HoldingsInChfWidget />
+                                <widgets:HoldingsInBtcWidget />
+                                <widgets:HoldingsInEthWidget />
                             </StackPanel>
                         </materialDesign:Card>
 
-                        <lvc:PieChart DockPanel.Dock="Top" LegendLocation="Bottom" Series="{Binding HoldingsPieChartSeries}" Hoverable="False" DisableAnimations="True" />
-
-                        <!--<lvc:CartesianChart Grid.Column="1" Series="{Binding HistoricalHoldingsLineChartSeries}" -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <widgets:PieChartHoldingsInChf Grid.Column="0" />
+                            <lvc:CartesianChart LegendLocation="Bottom"  Grid.Column="1" Series="{Binding HistoricalHoldingsLineChartSeries}" />
+                        </Grid>
                     </DockPanel>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
                         <Label>Holdings</Label>
                     </TabItem.Header>
-                    <DockPanel LastChildFill="True">
-                        <materialDesign:Card Margin="4" Padding="8" DockPanel.Dock="Top">
-                            <StackPanel Orientation="Horizontal">
-                                <Label FontWeight="Bold">In CHF</Label>
-                                <Label Content="{Binding TotalAmountInCHF}" />
-                                <Label FontWeight="Bold">In BTC</Label>
-                                <Label Content="{Binding TotalAmountInBTC}" />
-                                <Label FontWeight="Bold">In ETH</Label>
-                                <Label Content="{Binding TotalAmountInETH}" />
-                            </StackPanel>
-                        </materialDesign:Card>
 
-                        <ListView Margin="10,0,10,10" ItemsSource="{Binding Holdings}" GridViewColumnHeader.Click="HoldingsHeaderColumnClicked">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Currency" Width="120" DisplayMemberBinding="{Binding Currency}" />
-                                    <GridViewColumn Header="Amount" Width="100" DisplayMemberBinding="{Binding Amount}" />
-                                    <GridViewColumn Header="Amount in CHF" Width="130" DisplayMemberBinding="{Binding AmountInChf}" />
-                                    <GridViewColumn Header="Price in CHF" Width="130" DisplayMemberBinding="{Binding PriceInChf}" />
-                                    <GridViewColumn Header="Amount in BTC" Width="130" DisplayMemberBinding="{Binding AmountInBtc}" />
-                                    <GridViewColumn Header="Price in BTC" Width="130" DisplayMemberBinding="{Binding PriceInBtc}" />
-                                    <GridViewColumn Header="Amount in ETH" Width="130" DisplayMemberBinding="{Binding AmountInEth}" />
-                                    <GridViewColumn Header="Price in ETH" Width="130" DisplayMemberBinding="{Binding PriceInEth}" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                    </DockPanel>
+                    <pages:HoldingsPage />
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
                         <Label>Exchanges</Label>
                     </TabItem.Header>
-                    <DockPanel LastChildFill="True">
-                        <materialDesign:Card Margin="4" DockPanel.Dock="Top">
-                            <DockPanel>
-                                <Button Command="{Binding AddExchange}">Add exchange</Button>
-                            </DockPanel>
-                        </materialDesign:Card>
 
-                        <ListView Margin="12,0,12,12" ItemsSource="{Binding Exchanges}" GridViewColumnHeader.Click="ExchangeHeaderColumnClicked">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Origin currency" Width="140" DisplayMemberBinding="{Binding OriginCurrency}" />
-                                    <GridViewColumn Header="Origin amount" Width="140" DisplayMemberBinding="{Binding OriginAmount}" />
-                                    <GridViewColumn Header="Exchange rate" Width="140" DisplayMemberBinding="{Binding ExchangeRate}" />
-                                    <GridViewColumn Header="Target currency" Width="140" DisplayMemberBinding="{Binding TargetCurrency}" />
-                                    <GridViewColumn Header="Target amount" Width="140" DisplayMemberBinding="{Binding TargetAmount}" />
-                                    <GridViewColumn Header="Fees" Width="80" DisplayMemberBinding="{Binding Fees}" />
-                                    <GridViewColumn Header="Exchange platform" Width="160" DisplayMemberBinding="{Binding ExchangePlatform}" />
-                                    <GridViewColumn Header="Date/Time" Width="160" DisplayMemberBinding="{Binding DateTime}" />
-                                    <GridViewColumn CellTemplate="{StaticResource EditExchangeCellTemplate}" Width="70" />
-                                    <GridViewColumn CellTemplate="{StaticResource DeleteExchangeCellTemplate}" Width="70" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                    </DockPanel>
+                    <pages:ExchangesPage />
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
                         <Label>Deposits and Withdrawals</Label>
                     </TabItem.Header>
-                    <DockPanel LastChildFill="True">
-                        <materialDesign:Card Margin="4" DockPanel.Dock="Top">
-                            <DockPanel>
-                                <Button Command="{Binding AddDepositWithdrawl}">Add deposit / withdrawal</Button>
-                            </DockPanel>
-                        </materialDesign:Card>
-
-                        <ListView Margin="12,0,12,12" ItemsSource="{Binding DepositWithdrawls}" GridViewColumnHeader.Click="DepositWithdrawlHeaderColumnClicked">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Origin adress" Width="120" DisplayMemberBinding="{Binding OriginAdress}" />
-                                    <GridViewColumn Header="Origin Platform" Width="130" DisplayMemberBinding="{Binding OriginPlatform}" />
-                                    <GridViewColumn Header="Target adress" Width="120" DisplayMemberBinding="{Binding TargetAdress}" />
-                                    <GridViewColumn Header="Target Platform" Width="130" DisplayMemberBinding="{Binding TargetPlatform}" />
-                                    <GridViewColumn Header="Amount" Width="130" DisplayMemberBinding="{Binding Amount}" />
-                                    <GridViewColumn Header="Currency" Width="130" DisplayMemberBinding="{Binding Currency}" />
-                                    <GridViewColumn Header="Fees" Width="140" DisplayMemberBinding="{Binding Fees}" />
-                                    <GridViewColumn Header="Withdraw from holdings" Width="190" DisplayMemberBinding="{Binding WithDrawFromHoldings}" />
-                                    <GridViewColumn Header="Date/Time" Width="160" DisplayMemberBinding="{Binding DateTime}" />
-                                    <GridViewColumn CellTemplate="{StaticResource EditDepositWithdrawlCellTemplate}" Width="70" />
-                                    <GridViewColumn CellTemplate="{StaticResource DeleteDepositWithdrawlCellTemplate}" Width="70" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                    </DockPanel>
+                    
+                    <pages:DepositWithdrawPage />
                 </TabItem>
             </TabControl>
         </DockPanel>

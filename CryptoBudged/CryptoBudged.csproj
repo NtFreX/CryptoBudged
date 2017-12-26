@@ -75,6 +75,47 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\AdvancedGrid.xaml.cs">
+      <DependentUpon>AdvancedGrid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\DateTimeHelper.cs" />
+    <Compile Include="Helpers\CachedFunction.cs" />
+    <Compile Include="Services\DepositWithdrawService.cs" />
+    <Compile Include="Services\ExchangesService.cs" />
+    <Compile Include="Services\FileStoreService.cs" />
+    <Compile Include="Services\HoldingsService.cs" />
+    <Compile Include="Views\Pages\DepositWithdrawPage.xaml.cs">
+      <DependentUpon>DepositWithdrawPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\DepositWithdrawViewModel.cs" />
+    <Compile Include="Views\Pages\ExchangesPage.xaml.cs">
+      <DependentUpon>ExchangesPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\ExchangesPageViewModel.cs" />
+    <Compile Include="Views\Pages\HoldingsPage.xaml.cs">
+      <DependentUpon>HoldingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\HoldingsViewModel.cs" />
+    <Compile Include="Views\Widgets\HoldingsInBtcWidget.xaml.cs">
+      <DependentUpon>HoldingsInBtcWidget.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Widgets\HoldingsInBtcWidgetViewModel.cs" />
+    <Compile Include="Views\Widgets\HoldingsInChfWidget.xaml.cs">
+      <DependentUpon>HoldingsInChfWidget.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Widgets\HoldingsInChfWidgetViewModel.cs" />
+    <Compile Include="Views\Widgets\HoldingsInEthWidget.xaml.cs">
+      <DependentUpon>HoldingsInEthWidget.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Widgets\HoldingsInEthWidgetViewModel.cs" />
+    <Compile Include="Views\Widgets\PieChartHoldingsInChfWidget.xaml.cs">
+      <DependentUpon>PieChartHoldingsInChfWidget.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Widgets\PieChartHoldingsInChfWidgetViewModel.cs" />
+    <Page Include="Controls\AdvancedGrid.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\DepositWithdrawlDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -114,6 +155,34 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\Pages\DepositWithdrawPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\ExchangesPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\HoldingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Widgets\HoldingsInBtcWidget.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Widgets\HoldingsInChfWidget.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Widgets\HoldingsInEthWidget.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Widgets\PieChartHoldingsInChfWidget.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Views\MainWindowViewModel.cs" />

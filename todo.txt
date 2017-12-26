@@ -8,10 +8,8 @@ ideas:
  - more and customizable columns
  - add icons for coins and platforms
  - settings for (refresh rate, ..)
+ - make grid sortable 
 
 cleaup
- - add caching layer for web requests
- - seperate MainView into different views
- - cleanup MainViewModel.cs
  - seperate view and viewmodel code
  - add dependency injection service

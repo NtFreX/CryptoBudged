@@ -1,0 +1,39 @@
+﻿using System.Linq;
+using System.Threading.Tasks;
+using CryptoBudged.Services;
+using Prism.Mvvm;
+
+namespace CryptoBudged.Views.Widgets
+{
+    public class HoldingsInChfWidgetViewModel : BindableBase
+    {
+        private double _totalAmountInCHF;
+
+        public double TotalAmountInCHF
+        {
+            get => _totalAmountInCHF;
+            set => SetProperty(ref _totalAmountInCHF, value);
+        }
+
+        public HoldingsInChfWidgetViewModel()
+        {
+            Task.Run(ReloadHoldingsWorker);
+        }
+
+        private async Task ReloadHoldingsWorker()
+        {
+            while (true)
+            {
+                try
+                {
+                    TotalAmountInCHF = HoldingsService.Instance.CalculateHoldings().Sum(x => x.AmountInChf);
+                    await Task.Delay(5000);
+                }
+                catch
+                {
+                    /* IGNORE */
+                }
+            }
+        }
+    }
+}
