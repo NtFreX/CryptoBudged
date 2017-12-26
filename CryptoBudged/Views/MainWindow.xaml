@@ -70,16 +70,24 @@
                     <TabItem.Header>
                         <Label>Dashboard</Label>
                     </TabItem.Header>
-                    
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        
-                        <lvc:PieChart Grid.Column="0" LegendLocation="Bottom" Series="{Binding HoldingsPieChartSeries}" Hoverable="False" DisableAnimations="True" />
-                        <lvc:CartesianChart Grid.Column="1" Series="{Binding HistoricalHoldingsLineChartSeries}" />
-                    </Grid>
+
+                    <DockPanel LastChildFill="True">
+
+                        <materialDesign:Card Margin="4" Padding="8" DockPanel.Dock="Top">
+                            <StackPanel Orientation="Horizontal">
+                                <Label FontWeight="Bold">In CHF</Label>
+                                <Label Content="{Binding TotalAmountInCHF}" />
+                                <Label FontWeight="Bold">In BTC</Label>
+                                <Label Content="{Binding TotalAmountInBTC}" />
+                                <Label FontWeight="Bold">In ETH</Label>
+                                <Label Content="{Binding TotalAmountInETH}" />
+                            </StackPanel>
+                        </materialDesign:Card>
+
+                        <lvc:PieChart DockPanel.Dock="Top" LegendLocation="Bottom" Series="{Binding HoldingsPieChartSeries}" Hoverable="False" DisableAnimations="True" />
+
+                        <!--<lvc:CartesianChart Grid.Column="1" Series="{Binding HistoricalHoldingsLineChartSeries}" -->
+                    </DockPanel>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
@@ -176,3 +184,4 @@
         </DockPanel>
     </materialDesign:DialogHost>
 </Window>
+
