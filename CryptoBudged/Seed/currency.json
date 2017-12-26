@@ -1,0 +1,52 @@
+﻿[
+  {
+    "displayName": "Euro",
+    "shortName": "EUR",
+    "isCryptoCurrency": false
+  },
+  {
+    "displayName": "US Dollar",
+    "shortName": "USD",
+    "isCryptoCurrency": false
+  },
+  {
+    "displayName": "Bitcoin",
+    "shortName": "BTC",
+    "isCryptoCurrency": true
+  },
+  {
+    "displayName": "Etheereum",
+    "shortName": "ETH",
+    "isCryptoCurrency": true
+  },
+  {
+    "displayName": "IOTA",
+    "shortName": "IOT",
+    "isCryptoCurrency": true
+  },
+  {
+    "displayName": "Tronix",
+    "shortName": "TRX",
+    "isCryptoCurrency": true
+  },
+  {
+    "displayName": "NEO",
+    "shortName": "NEO",
+    "isCryptoCurrency": true
+  },
+  {
+    "displayName": "Request Network",
+    "shortName": "REQ",
+    "isCryptoCurrency": true
+  },
+  {
+    "displayName": "Ripple",
+    "shortName": "XRP",
+    "isCryptoCurrency": true
+  },
+  {
+    "displayName": "Verge",
+    "shortName": "XVG",
+    "isCryptoCurrency": true
+  }
+]

@@ -1,0 +1,32 @@
+﻿[
+  {
+    "displayName": "Bitfinex",
+    "uri": "",
+    "exchangesCryptoCurrencies": true
+  },
+  {
+    "displayName": "Liqui.io",
+    "uri": "",
+    "exchangesCryptoCurrencies": true
+  },
+  {
+    "displayName": "Coinbase",
+    "uri": "",
+    "exchangesCryptoCurrencies": true
+  },
+  {
+    "displayName": "Binance",
+    "uri": "",
+    "exchangesCryptoCurrencies": true
+  },
+  {
+    "displayName": "ZKB",
+    "uri": "",
+    "exchangesCryptoCurrencies": false
+  },
+  {
+    "displayName": "Post fincance",
+    "uri": "",
+    "exchangesCryptoCurrencies": false
+  }
+]

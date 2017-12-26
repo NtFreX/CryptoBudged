@@ -3,3 +3,6 @@
 ################################################################################
 
 /CryptoBudged/bin/Debug
+/.vs/CryptoBudged/v15/Server/sqlite3
+/CryptoBudged/obj/Debug
+/packages

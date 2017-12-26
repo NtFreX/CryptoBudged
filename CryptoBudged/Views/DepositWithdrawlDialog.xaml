@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="CryptoBudged.Views.DepositWithdrawlDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CryptoBudged"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300"
+             
+             Width="350"
+             
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="Auto"
+             Background="{DynamicResource MaterialDesignPaper}"
+             FontFamily="{DynamicResource MaterialDesignFont}">
+    <Grid>
+        <StackPanel>
+            <materialDesign:Card Padding="12" Margin="8">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="25" />
+                        </Grid.RowDefinitions>
+
+                        <Label Grid.Column="0" Grid.Row="0" Content="Currency" />
+                        <ComboBox Grid.Column="1" Grid.Row="0" ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}" />
+
+                        <Label Grid.Column="0" Grid.Row="1" Content="Origin platform" />
+                        <ComboBox Grid.Column="1" Grid.Row="1" ItemsSource="{Binding OriginPlatform}" SelectedItem="{Binding SelectedOriginPlatform}" />
+
+                        <Label Grid.Column="0" Grid.Row="2" Content="Origin adress" />
+                        <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding OriginAdress}" />
+
+                        <Label Grid.Column="0" Grid.Row="3" Content="Target platform" />
+                        <ComboBox Grid.Column="1" Grid.Row="3" ItemsSource="{Binding TargetPlatform}" SelectedItem="{Binding SelectedTargetPlatform}" />
+
+                        <Label Grid.Column="0" Grid.Row="4" Content="Target adress" />
+                        <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding TargetAdress}" />
+
+                        <Label Grid.Column="0" Grid.Row="5" Content="Amount" />
+                        <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding Amount}" />
+                        
+                        <Label Grid.Column="0" Grid.Row="6" Content="Fees" />
+                        <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding Fees}"></TextBox>
+
+                        <Label Grid.Column="0" Grid.Row="7" Content="Date" />
+                        <DatePicker Grid.Column="1" Grid.Row="7" Margin="0" SelectedDate="{Binding SelectedDate}" />
+
+                        <Label Grid.Column="0" Grid.Row="8" Content="Time" />
+                        <materialDesign:TimePicker Grid.Column="1" Grid.Row="8" Margin="0" SelectedTime="{Binding SelectedTime}"/>
+
+                        <Label Grid.Column="0" Grid.Row="9" Content="Withdraw from holdings" />
+                        <CheckBox Grid.Column="1" Grid.Row="9" IsChecked="{Binding WithDrawFromHoldings}" />
+                    </Grid>
+
+                    <Label Content="{Binding ValidationMessages}" Foreground="Red" />
+                </StackPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card Padding="12" Margin="8,0,8,8">
+                <DockPanel>
+                    <Button Width="100" Command="{Binding CancleCommand}">Cancel</Button>
+                    <Button Width="100" HorizontalAlignment="Right" Command="{Binding SaveCommand}">Save</Button>
+                </DockPanel>
+            </materialDesign:Card>
+        </StackPanel>
+    </Grid>
+</UserControl>

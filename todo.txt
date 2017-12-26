@@ -1,0 +1,8 @@
+ X add yes/no for count as "einzahlung"
+ - * / bug??
+ - bug changes arent saved
+
+ideas:
+ - dashboard customizable with graphics and numbers
+ - coin overview with graphics
+ - more and customizable columns
