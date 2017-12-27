@@ -34,6 +34,7 @@
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="Background" Value="Transparent" />
                         <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="FontStyle" Value="Italic" />
                     </Trigger>
                 </Style.Triggers>
             </Style>

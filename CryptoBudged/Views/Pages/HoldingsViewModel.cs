@@ -46,11 +46,15 @@ namespace CryptoBudged.Views.Pages
             if (!model.Currency.IsCryptoCurrency)
                 return;
 
+            var window = Application.Current?.MainWindow;
+            var width = window?.Width ?? 400;
+            var height = window?.Height ?? 400;
+
             var view = new TradingViewWidget
             {
                 CurrencyShortName = model.Currency.ShortName,
-                Width = 1000,
-                Height = 1000
+                Width = width,
+                Height = height
             };
 
             var dialog = DialogHost.Show(view);
