@@ -6,8 +6,30 @@
              xmlns:local="clr-namespace:CryptoBudged.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <DataTemplate x:Key="HeaderTemplateArrowUp">
+            <DockPanel>
+                <TextBlock HorizontalAlignment="Center" Text="{Binding}"/>
+                <Path x:Name="arrow" StrokeThickness="1" Fill="gray" Data="M 5,10 L 15,10 L 10,5 L 5,10" />
+            </DockPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="HeaderTemplateArrowDown">
+            <DockPanel>
+                <TextBlock HorizontalAlignment="Center" Text="{Binding }"/>
+                <Path x:Name="arrow" StrokeThickness="1" Fill="gray" Data="M 5,5 L 10,10 L 15,5 L 5,5" />
+            </DockPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+    
     <ListView View="{Binding View, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-              ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource AncestorType=UserControl}}">
-        
+              ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource AncestorType=UserControl}}"
+              GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler"
+              x:Name="ListView" >
+        <ListView.ItemContainerStyle>
+            <Style TargetType="ListViewItem">
+                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="HandlePreviewMouseLeftButtonDown" />
+            </Style>
+        </ListView.ItemContainerStyle>
     </ListView>
 </UserControl>

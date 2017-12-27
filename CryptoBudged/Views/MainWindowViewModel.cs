@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using CryptoBudged.Models;
 using CryptoBudged.Services;
@@ -47,8 +48,13 @@ namespace CryptoBudged.Views
             { "Price in ETH", x => x.PriceInEth }
         };*/
 
-        
+
         public MainWindowViewModel()
-        { }
+        {
+            //var lines = File.ReadAllLines(@"C:\Users\ftr\Desktop\tradingPairs.txt").ToList();
+            //lines.RemoveAll(x => double.TryParse(x, out var _));
+            //lines = lines.Select(x => $"\"{x}\",").ToList();
+            //File.WriteAllLines(@"C:\Users\ftr\Desktop\tradingPairs.txt", lines);
+        }
     }
 }

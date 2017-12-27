@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 
 namespace CryptoBudged.Models
 {
-    public class CurrencyModel
+    public class CurrencyModel : IComparable
     {
         public string ShortName { get; set; }
         public string DisplayName { get; set; }
@@ -12,6 +13,14 @@ namespace CryptoBudged.Models
 
         public override string ToString()
             => $"{DisplayName} ({ShortName})";
+
+        public int CompareTo(object obj)
+        {
+            if (!(obj is CurrencyModel currency))
+                return String.CompareOrdinal(null, ShortName);
+
+            return String.CompareOrdinal(currency?.ShortName, ShortName);
+        }
     }
 
     public class CurrencyModelEqualityComparer : IEqualityComparer<CurrencyModel>

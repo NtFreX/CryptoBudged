@@ -26,26 +26,26 @@
             </DockPanel>
         </materialDesign:Card>
 
-        <controls:AdvancedGrid Margin="12,0,12,12" ItemsSource="{Binding DepositWithdrawls}">
+        <controls:AdvancedGrid Margin="12,0,12,12" ItemsSource="{Binding DepositWithdrawls}" GridConfigurationName="DepositWithdrawGrid">
             <controls:AdvancedGrid.View>
                 <GridView>
-                    <GridViewColumn Header="Origin adress" Width="120" DisplayMemberBinding="{Binding OriginAdress}" />
-                    <GridViewColumn Header="Origin Platform" Width="130" DisplayMemberBinding="{Binding OriginPlatform}" />
-                    <GridViewColumn Header="Target adress" Width="120" DisplayMemberBinding="{Binding TargetAdress}" />
-                    <GridViewColumn Header="Target Platform" Width="130" DisplayMemberBinding="{Binding TargetPlatform}" />
+                    <GridViewColumn Header="Origin adress" Width="135" DisplayMemberBinding="{Binding OriginAdress}" />
+                    <GridViewColumn Header="Origin Platform" Width="145" DisplayMemberBinding="{Binding OriginPlatform}" />
+                    <GridViewColumn Header="Target adress" Width="135" DisplayMemberBinding="{Binding TargetAdress}" />
+                    <GridViewColumn Header="Target Platform" Width="145" DisplayMemberBinding="{Binding TargetPlatform}" />
                     <GridViewColumn Header="Amount" Width="130" DisplayMemberBinding="{Binding Amount}" />
-                    <GridViewColumn Header="Currency" Width="160" >
-                        <GridViewColumn.CellTemplate>
+                    <controls:AdvancedGridViewColumn Header="Currency" Width="160" SortByPropertyName="Currency">
+                        <controls:AdvancedGridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="{Binding Currency.ImagePath}" Height="25" Width="25" />
                                     <Label Content="{Binding Currency}" />
                                 </StackPanel>
                             </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
+                        </controls:AdvancedGridViewColumn.CellTemplate>
+                    </controls:AdvancedGridViewColumn>
                     <GridViewColumn Header="Fees" Width="140" DisplayMemberBinding="{Binding Fees}" />
-                    <GridViewColumn Header="Withdraw from holdings" Width="190" DisplayMemberBinding="{Binding WithDrawFromHoldings}" />
+                    <GridViewColumn Header="Withdraw from holdings" Width="195" DisplayMemberBinding="{Binding WithDrawFromHoldings}" />
                     <GridViewColumn Header="Date/Time" Width="160" DisplayMemberBinding="{Binding DateTime}" />
                     <GridViewColumn CellTemplate="{StaticResource EditDepositWithdrawlCellTemplate}" Width="70" />
                     <GridViewColumn CellTemplate="{StaticResource DeleteDepositWithdrawlCellTemplate}" Width="70" />
