@@ -144,14 +144,16 @@ namespace CryptoBudged.Views
                         });
 
                         await CurrencyExchangeFactory.Instance.InitializeAsync(ProgressCallback);
+
+                        dispatcher.Invoke(() => IsLoading = false);
                     }
                     catch (Exception exce)
                     {
-                        dispatcher.Invoke(() => LoadingText = $"Error during loading of historical exchange rates ({exce.Message})");
-                        dispatcher.Invoke(() => IsLoading = false);
-                    }
-                    finally
-                    {
+                        dispatcher.Invoke(() =>
+                        {
+                            IsLoading = false;
+                            LoadingText = $"Error during loading of historical exchange rates ({exce.Message})";
+                        });
                     }
                 });
             }

@@ -261,12 +261,14 @@ namespace CryptoBudged.Services
 
         private string GetChecksum(string file)
         {
-            using (FileStream stream = File.OpenRead(file))
-            {
-                var sha = new SHA256Managed();
-                byte[] checksum = sha.ComputeHash(stream);
-                return BitConverter.ToString(checksum).Replace("-", String.Empty);
-            }
+            return "_";
+
+            //using (FileStream stream = File.OpenRead(file))
+            //{
+            //    var sha = new SHA256Managed();
+            //    byte[] checksum = sha.ComputeHash(stream);
+            //    return BitConverter.ToString(checksum).Replace("-", String.Empty);
+            //}
         }
         private void DeleteIndexFile(string filePath)
             => File.Delete(filePath);
