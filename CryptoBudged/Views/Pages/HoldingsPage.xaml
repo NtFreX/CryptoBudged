@@ -7,12 +7,14 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:controls="clr-namespace:CryptoBudged.Controls"
              xmlns:widgets="clr-namespace:CryptoBudged.Views.Widgets"
+             xmlns:converter="clr-namespace:CryptoBudged.Converter"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
-
-        <DataTemplate x:Key="CurrencyItemCellTemplate">
-            <Image Source="{Binding}" />
+        <converter:SignToBrushConverter x:Key="SignToBrushConverter" />
+        
+        <DataTemplate x:Key="ProfitItemTemplate">
+            <TextBlock Text="{Binding}" Foreground="{Binding Converter={StaticResource SignToBrushConverter}}" />
         </DataTemplate>
     </UserControl.Resources>
     
@@ -39,6 +41,9 @@
                     <GridViewColumn Header="Amount" Width="100" DisplayMemberBinding="{Binding Amount}" />
                     <GridViewColumn Header="Amount in CHF" Width="145" DisplayMemberBinding="{Binding AmountInChf}" />
                     <GridViewColumn Header="Price in CHF" Width="130" DisplayMemberBinding="{Binding PriceInChf}" />
+                    <GridViewColumn Header="Profit in CHF" Width="130" DisplayMemberBinding="{Binding ProfitInChf}" CellTemplate="{StaticResource ProfitItemTemplate}" />
+                    <GridViewColumn Header="Profit in %" Width="130" DisplayMemberBinding="{Binding ProfitInPercent}" CellTemplate="{StaticResource ProfitItemTemplate}" />
+                    <GridViewColumn Header="Investment in CHF" Width="140" DisplayMemberBinding="{Binding InvestmentInChf}" />
                     <GridViewColumn Header="Amount in BTC" Width="145" DisplayMemberBinding="{Binding AmountInBtc}" />
                     <GridViewColumn Header="Price in BTC" Width="130" DisplayMemberBinding="{Binding PriceInBtc}" />
                     <GridViewColumn Header="Amount in ETH" Width="145" DisplayMemberBinding="{Binding AmountInEth}" />

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CryptoBudged"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300"
+             d:DesignHeight="450" d:DesignWidth="300"
              
              Width="350"
              
@@ -37,6 +37,8 @@
                             <RowDefinition Height="25" />
                             <RowDefinition Height="25" />
                             <RowDefinition Height="25" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="75" />
                         </Grid.RowDefinitions>
 
                         <Label Grid.Column="0" Grid.Row="0" Content="Currency" />
@@ -47,27 +49,33 @@
 
                         <Label Grid.Column="0" Grid.Row="2" Content="Origin adress" />
                         <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding OriginAdress}" />
-
-                        <Label Grid.Column="0" Grid.Row="3" Content="Target platform" />
-                        <ComboBox Grid.Column="1" Grid.Row="3" ItemsSource="{Binding TargetPlatform}" SelectedItem="{Binding SelectedTargetPlatform}" />
-
-                        <Label Grid.Column="0" Grid.Row="4" Content="Target adress" />
-                        <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding TargetAdress}" />
-
-                        <Label Grid.Column="0" Grid.Row="5" Content="Amount" />
-                        <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding Amount}" />
                         
-                        <Label Grid.Column="0" Grid.Row="6" Content="Fees" />
-                        <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding Fees}"></TextBox>
+                        <Label Grid.Column="0" Grid.Row="3" Content="Is my account" />
+                        <CheckBox Grid.Column="1" Grid.Row="3" IsChecked="{Binding IsOriginAdressMine}" />
 
-                        <Label Grid.Column="0" Grid.Row="7" Content="Date" />
-                        <DatePicker Grid.Column="1" Grid.Row="7" Margin="0" SelectedDate="{Binding SelectedDate}" />
+                        <Label Grid.Column="0" Grid.Row="4" Content="Target platform" />
+                        <ComboBox Grid.Column="1" Grid.Row="4" ItemsSource="{Binding TargetPlatform}" SelectedItem="{Binding SelectedTargetPlatform}" />
 
-                        <Label Grid.Column="0" Grid.Row="8" Content="Time" />
-                        <materialDesign:TimePicker Grid.Column="1" Grid.Row="8" Margin="0" SelectedTime="{Binding SelectedTime}"/>
+                        <Label Grid.Column="0" Grid.Row="5" Content="Target adress" />
+                        <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding TargetAdress}" />
 
-                        <Label Grid.Column="0" Grid.Row="9" Content="Withdraw from holdings" />
-                        <CheckBox Grid.Column="1" Grid.Row="9" IsChecked="{Binding WithDrawFromHoldings}" />
+                        <Label Grid.Column="0" Grid.Row="6" Content="Is my account" />
+                        <CheckBox Grid.Column="1" Grid.Row="6" IsChecked="{Binding IsTargetAdressMine}" />
+
+                        <Label Grid.Column="0" Grid.Row="7" Content="Amount" />
+                        <TextBox Grid.Column="1" Grid.Row="7" Text="{Binding Amount}" />
+                        
+                        <Label Grid.Column="0" Grid.Row="8" Content="Fees" />
+                        <TextBox Grid.Column="1" Grid.Row="8" Text="{Binding Fees}" />
+
+                        <Label Grid.Column="0" Grid.Row="9" Content="Date" />
+                        <DatePicker Grid.Column="1" Grid.Row="9" Margin="0" SelectedDate="{Binding SelectedDate}" />
+
+                        <Label Grid.Column="0" Grid.Row="10" Content="Time" />
+                        <materialDesign:TimePicker Grid.Column="1" Grid.Row="10" Margin="0" SelectedTime="{Binding SelectedTime}"/>
+                        
+                        <Label Grid.Column="0" Grid.Row="11" Content="Note" />
+                        <TextBox Grid.Column="1" Grid.Row="11" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding Note}" />
                     </Grid>
 
                     <Label Content="{Binding ValidationMessages}" Foreground="Red" />

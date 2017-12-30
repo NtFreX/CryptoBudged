@@ -10,6 +10,11 @@
     "isCryptoCurrency": false
   },
   {
+    "displayName": "Schweizer Franken",
+    "shortName": "CHF",
+    "isCryptoCurrency": false
+  },
+  {
     "displayName": "Bitcoin",
     "shortName": "BTC",
     "isCryptoCurrency": true

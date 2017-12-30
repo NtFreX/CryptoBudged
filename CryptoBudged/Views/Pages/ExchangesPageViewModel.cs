@@ -50,7 +50,8 @@ namespace CryptoBudged.Views.Pages
                     ExchangePlatform = viewModel.SelectedExchangePlatform,
                     OriginCurrency = viewModel.SelectedOriginCurrency,
                     TargetCurrency = viewModel.SelectedTargetCurrency,
-                    DateTime = DateTimeHelper.DateAndTimeToDateTime(viewModel.SelectedDate, viewModel.SelectedTime)
+                    DateTime = DateTimeHelper.DateAndTimeToDateTime(viewModel.SelectedDate, viewModel.SelectedTime),
+                    Note = viewModel.Note
                 });
 
                 ExchangesService.Instance.Update(Exchanges);
@@ -81,6 +82,7 @@ namespace CryptoBudged.Views.Pages
             viewModel.SelectedTargetCurrency = viewModel.TargetCurrencies.First(x => x.ShortName == model.TargetCurrency.ShortName);
             viewModel.SelectedTime = model.DateTime;
             viewModel.TargetAmount = model.TargetAmount.ToString();
+            viewModel.Note = model.Note;
 
             var result = await DialogHost.Show(dialog);
             if (bool.TryParse(result.ToString(), out var success) && success)
@@ -94,6 +96,7 @@ namespace CryptoBudged.Views.Pages
                 exchange.OriginCurrency = viewModel.SelectedOriginCurrency;
                 exchange.TargetAmount = double.Parse(viewModel.TargetAmount);
                 exchange.TargetCurrency = viewModel.SelectedTargetCurrency;
+                exchange.Note = viewModel.Note;
             }
 
             Exchanges = new ObservableCollection<ExchangeModel>(Exchanges.ToArray());

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CryptoBudged.Factories;
 using CryptoBudged.Helpers;
 using CryptoBudged.Models;
 
@@ -54,10 +55,12 @@ namespace CryptoBudged.Services
                         });
                     }
 
-                    holdings.Find(x => x.Currency.ShortName == depositWithdrawl.Currency.ShortName).Amount +=
-                        depositWithdrawl.Amount - depositWithdrawl.Fees;
-
-                    if (depositWithdrawl.WithDrawFromHoldings)
+                    if (depositWithdrawl.IsTargetAdressMine)
+                    {
+                        holdings.Find(x => x.Currency.ShortName == depositWithdrawl.Currency.ShortName).Amount +=
+                            depositWithdrawl.Amount - depositWithdrawl.Fees;
+                    }
+                    if (depositWithdrawl.IsOriginAdressMine)
                     {
                         holdings.Find(x => x.Currency.ShortName == depositWithdrawl.Currency.ShortName).Amount -=
                             depositWithdrawl.Amount;
@@ -65,15 +68,14 @@ namespace CryptoBudged.Services
                 }
 
                 holdings.RemoveAll(x => x.Amount == 0);
-
-                var cryptoCurrencyService = new CryptoCurrencyService();
+                
                 var tasks = new List<Task>();
                 foreach (var holding in holdings)
                 {
                     var tmpHolding = holding;
                     tasks.Add(Task.Run(async () =>
                     {
-                        var prices = await cryptoCurrencyService.GetPriceOfCurrencyAsync(holding.Currency);
+                        var prices = await CryptoCurrencyService.Instance.GetCurrentPricesAsync(holding.Currency.ShortName);
                         tmpHolding.AmountInBtc = tmpHolding.Amount * prices.BTC;
                         tmpHolding.AmountInChf = tmpHolding.Amount * prices.CHF;
                         tmpHolding.AmountInEth = tmpHolding.Amount * prices.ETH;
@@ -87,6 +89,28 @@ namespace CryptoBudged.Services
                 if (!Task.WaitAll(tasks.ToArray(), new TimeSpan(0, 0, 30)))
                 {
                     throw new TaskCanceledException();
+                }
+
+                var profitCalculationTasks = holdings.Select(holding => Task.Run(async () =>
+                    {
+                        var investmentInCurency = await CryptoCurrencyService.Instance.CalculateInvestmentAsync(holding.Currency, CurrencyFactory.Instance.GetByShortName("CHF"));
+                        var holdingInCurrency = holding.AmountInChf;
+                        var profitForCurrency = holdingInCurrency - investmentInCurency;
+                        var profitInPercent = holdingInCurrency / (investmentInCurency / 100.0) - 100.0;
+
+                        holding.ProfitInChf = profitForCurrency;
+                        holding.ProfitInPercent = profitInPercent;
+                        holding.InvestmentInChf = investmentInCurency;
+                    }))
+                    .ToList();
+
+                try
+                {
+                    Task.WaitAll(profitCalculationTasks.ToArray(), new TimeSpan(0, 0, 30));
+                }
+                catch
+                {
+                    /* IGNORE */
                 }
 
                 return holdings;

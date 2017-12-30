@@ -18,61 +18,76 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}">
     
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+    
     <materialDesign:DialogHost>
-        <DockPanel  LastChildFill="True">
-            <materialDesign:Card Padding="12" Margin="8" DockPanel.Dock="Top">
-                <DockPanel>
-                    <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}">Crypto Budget</TextBlock>
-                </DockPanel>
-            </materialDesign:Card>
-
-            <TabControl Margin="14,0,14,14">
-                <TabItem>
-                    <TabItem.Header>
-                        <Label>Dashboard</Label>
-                    </TabItem.Header>
-
-                    <DockPanel LastChildFill="True">
-                        <materialDesign:Card DockPanel.Dock="Top" Margin="4" Padding="8">
-                            <StackPanel Orientation="Horizontal">
-                                <widgets:HoldingsInChfWidget />
-                                <widgets:HoldingsInBtcWidget />
-                                <widgets:HoldingsInEthWidget />
-                            </StackPanel>
-                        </materialDesign:Card>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <widgets:PieChartHoldingsInChfWidget Grid.Column="0" />
-                        </Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+        
+            <DockPanel Grid.Row="0" LastChildFill="True">
+                <materialDesign:Card Padding="12" Margin="8" DockPanel.Dock="Top">
+                    <DockPanel>
+                        <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}">Crypto Budget</TextBlock>
                     </DockPanel>
-                </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <Label>Holdings</Label>
-                    </TabItem.Header>
+                </materialDesign:Card>
 
-                    <pages:HoldingsPage />
-                </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <Label>Exchanges</Label>
-                    </TabItem.Header>
+                <TabControl Margin="14,0,14,14">
+                    <TabItem>
+                        <TabItem.Header>
+                            <Label>Dashboard</Label>
+                        </TabItem.Header>
 
-                    <pages:ExchangesPage />
-                </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <Label>Deposits and Withdrawals</Label>
-                    </TabItem.Header>
+                        <DockPanel LastChildFill="True">
+                            <materialDesign:Card DockPanel.Dock="Top" Margin="4" Padding="8">
+                                <StackPanel Orientation="Horizontal">
+                                    <widgets:HoldingsInChfWidget />
+                                    <widgets:HoldingsInBtcWidget />
+                                    <widgets:HoldingsInEthWidget />
+                                </StackPanel>
+                            </materialDesign:Card>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <widgets:PieChartHoldingsInChfWidget Grid.Column="0" />
+                                <widgets:ProfitsInTotalWidgetxaml Grid.Column="1" />
+                            </Grid>
+                        </DockPanel>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <Label>Holdings</Label>
+                        </TabItem.Header>
+
+                        <pages:HoldingsPage />
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <Label>Exchanges</Label>
+                        </TabItem.Header>
+
+                        <pages:ExchangesPage />
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <Label>Deposits and Withdrawals</Label>
+                        </TabItem.Header>
                     
-                    <pages:DepositWithdrawPage />
-                </TabItem>
-            </TabControl>
-        </DockPanel>
+                        <pages:DepositWithdrawPage />
+                    </TabItem>
+                </TabControl>
+            </DockPanel>
+
+            <Label Grid.Row="1" Content="{Binding LoadingText}" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        </Grid>
     </materialDesign:DialogHost>
 </Window>
 

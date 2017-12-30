@@ -10,7 +10,23 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
     <Grid>
-        <Label VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding TradingPairNotFound, Converter={StaticResource BooleanToVisibilityConverter}}">The trading pair was not found</Label>
+        <Label VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Label.Content>The trading pair was not found</Label.Content>
+            <Label.Style>
+                <Style TargetType="Label">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsLoadingWebView, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding TradingPairNotFound, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+        <Label VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding IsLoadingWebView, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}">Loading</Label>
+        
         <wpf:ChromiumWebBrowser x:Name="WebBrowser" />
     </Grid>
 </UserControl>

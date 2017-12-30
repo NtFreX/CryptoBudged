@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using CryptoBudged.Models;
 
 namespace CryptoBudged.Views.Widgets
@@ -12,10 +13,18 @@ namespace CryptoBudged.Views.Widgets
     /// </summary>
     public partial class TradingViewWidget : UserControl
     {
+        private readonly Dispatcher _dispatcher;
+
         public bool TradingPairNotFound
         {
             get => (bool)GetValue(TradingPairNotFoundProperty);
             set => SetValue(TradingPairNotFoundProperty, value);
+        }
+
+        public bool IsLoadingWebView
+        {
+            get => (bool)GetValue(IsLoadingWebViewProperty);
+            set => SetValue(IsLoadingWebViewProperty, value);
         }
 
         public string CurrencyShortName
@@ -26,7 +35,9 @@ namespace CryptoBudged.Views.Widgets
 
         public static readonly DependencyProperty TradingPairNotFoundProperty =
             DependencyProperty.Register(nameof(TradingPairNotFound), typeof(bool), typeof(TradingViewWidget));
-
+        
+        public static readonly DependencyProperty IsLoadingWebViewProperty =
+            DependencyProperty.Register(nameof(IsLoadingWebView), typeof(bool), typeof(TradingViewWidget));
 
         public static readonly DependencyProperty CurrencyShortNameProperty =
             DependencyProperty.Register(nameof(CurrencyShortName), typeof(string), typeof(TradingViewWidget), new FrameworkPropertyMetadata(CurrencyShortNamePropertyChanged));
@@ -36,27 +47,62 @@ namespace CryptoBudged.Views.Widgets
             if (!(dependencyObject is TradingViewWidget tradingViewWidget))
                 return;
 
-            var shortName = dependencyPropertyChangedEventArgs.NewValue.ToString().ToLower() + "usd";
-            var platform = tradingViewWidget.tradingPairs.FirstOrDefault(x => x.Value.Contains(shortName.ToUpper()));
-            if (string.IsNullOrEmpty(platform.Key))
+            var newValue = dependencyPropertyChangedEventArgs.NewValue?.ToString();
+            if (string.IsNullOrEmpty(newValue))
+                return;
+
+            var tradingPair = tradingViewWidget.GetTradingPair(newValue, "USD");
+            var shortName = $"{newValue}USD".ToLower();
+            if (tradingPair == null)
             {
+                tradingPair = tradingViewWidget.GetTradingPair(newValue, "ETH");
+                shortName = $"{newValue}ETH".ToLower();
+            }
+            if (tradingPair == null)
+            {
+                tradingPair = tradingViewWidget.GetTradingPair(newValue, "BTC");
+                shortName = $"{newValue}BTC".ToLower();
+            }
+            if (tradingPair == null)
+            {
+                tradingViewWidget.IsLoadingWebView = false;
                 tradingViewWidget.TradingPairNotFound = true;
                 return;
             }
-            tradingViewWidget.TradingPairNotFound = false;
 
-            tradingViewWidget.WebBrowser.Address = $"https://cryptowat.ch/{platform.Key.ToLower()}/{shortName}";
+            tradingViewWidget.TradingPairNotFound = false;
+            tradingViewWidget.WebBrowser.Address = $"https://embed.cryptowat.ch/{tradingPair.Value.Key.ToLower()}/{shortName}/";
         }
 
         public TradingViewWidget()
         {
-            TradingPairNotFound = false;
-
             InitializeComponent();
+
+            _dispatcher = Dispatcher.CurrentDispatcher;
+
+            TradingPairNotFound = false;
+            IsLoadingWebView = true;
+
+            WebBrowser.LoadingStateChanged += WebBrowser_LoadingStateChanged;
         }
 
+        private void WebBrowser_LoadingStateChanged(object sender, CefSharp.LoadingStateChangedEventArgs e)
+        {
+            _dispatcher.Invoke(() => IsLoadingWebView = e.IsLoading);
+        }
 
-        private readonly Dictionary<string /* exchange */, List<string> /* trading pairs*/> tradingPairs =
+        private KeyValuePair<string, List<string>>? GetTradingPair(string fromCurrency, string toCurrency)
+        {
+            var shortName = fromCurrency.ToLower() + toCurrency.ToLower();
+            var platform = _tradingPairs.FirstOrDefault(x => x.Value.Contains(shortName.ToUpper()));
+            if (string.IsNullOrEmpty(platform.Key))
+            {
+                return null;
+            }
+            return platform;
+        }
+
+        private readonly Dictionary<string /* exchange */, List<string> /* trading pairs*/> _tradingPairs =
             new Dictionary<string, List<string>>
             {
                 { "Poloniex", new []

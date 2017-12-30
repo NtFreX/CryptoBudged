@@ -35,6 +35,7 @@
                             <RowDefinition Height="25" />
                             <RowDefinition Height="25" />
                             <RowDefinition Height="25" />
+                            <RowDefinition Height="75" />
                         </Grid.RowDefinitions>
 
                         <Label Grid.Column="0" Grid.Row="0" Content="Origin currency" />
@@ -63,6 +64,9 @@
 
                         <Label Grid.Column="0" Grid.Row="8" Content="Time" />
                         <materialDesign:TimePicker Grid.Column="1" Grid.Row="8" Margin="0" SelectedTime="{Binding SelectedTime}"/>
+                        
+                        <Label Grid.Column="0" Grid.Row="9" Content="Note" />
+                        <TextBox Grid.Column="1" Grid.Row="9" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding Note}" />
                     </Grid>
 
                     <Label Content="{Binding ValidationMessages}" Foreground="Red" />

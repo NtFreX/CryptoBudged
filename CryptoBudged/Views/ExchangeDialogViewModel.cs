@@ -25,6 +25,7 @@ namespace CryptoBudged.Views
         public CurrencyModel SelectedOriginCurrency { get; set; }
         public DateTime? SelectedTime { get; set; }
         public DateTime? SelectedDate { get; set; }
+        public string Note { get; set; }
 
         public string ValidationMessages
         {
@@ -79,7 +80,7 @@ namespace CryptoBudged.Views
                 isExchangeRateValid && exchangeRate != 0)
             {
                 var fees = double.TryParse(Fees, out var value) ? value : 0.0d;
-                TargetAmount = (originAmount / exchangeRate - fees).ToString(CultureInfo.CurrentUICulture);
+                TargetAmount = (originAmount / exchangeRate - fees).ToString(CultureInfo.CurrentCulture);
             }
         }
 
@@ -110,6 +111,10 @@ namespace CryptoBudged.Views
             if (SelectedExchangePlatform == null)
             {
                 validationMessages.Add("Select a exchange platform");
+            }
+            if (SelectedOriginCurrency?.ShortName == SelectedTargetCurrency?.ShortName)
+            {
+                validationMessages.Add("The origin and target currency cannot be the same");
             }
 
             if (validationMessages.Count == 0)

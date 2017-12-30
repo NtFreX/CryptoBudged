@@ -13,5 +13,6 @@ namespace CryptoBudged.Models
         public double Fees { get; set; }
         public ExchangePlatformModel ExchangePlatform { get; set; }
         public DateTime DateTime { get; set; }
+        public string Note { get; set; }
     }
 }

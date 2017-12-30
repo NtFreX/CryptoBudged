@@ -52,7 +52,9 @@ namespace CryptoBudged.Views.Pages
             viewModel.SelectedCurrency = viewModel.Currencies.First(x => x.ShortName == model.Currency.ShortName);
             viewModel.SelectedTime = model.DateTime;
             viewModel.TargetAdress = model.TargetAdress;
-            viewModel.WithDrawFromHoldings = model.WithDrawFromHoldings;
+            viewModel.IsTargetAdressMine = model.IsTargetAdressMine;
+            viewModel.IsOriginAdressMine = model.IsOriginAdressMine;
+            viewModel.Note = model.Note;
 
             var result = await DialogHost.Show(dialog);
             if (bool.TryParse(result.ToString(), out var success) && success)
@@ -66,7 +68,9 @@ namespace CryptoBudged.Views.Pages
                 depositWithdrawl.OriginPlatform = viewModel.SelectedOriginPlatform;
                 depositWithdrawl.TargetAdress = viewModel.TargetAdress;
                 depositWithdrawl.TargetPlatform = viewModel.SelectedTargetPlatform;
-                depositWithdrawl.WithDrawFromHoldings = viewModel.WithDrawFromHoldings;
+                depositWithdrawl.IsTargetAdressMine = viewModel.IsTargetAdressMine;
+                depositWithdrawl.IsOriginAdressMine = viewModel.IsOriginAdressMine;
+                depositWithdrawl.Note = viewModel.Note;
 
                 DepositWithdrawService.Instance.Update(DepositWithdrawls);
                 DepositWithdrawls = new ObservableCollection<DepositWithdrawlModel>(DepositWithdrawls.ToArray());
@@ -97,7 +101,9 @@ namespace CryptoBudged.Views.Pages
                     OriginPlatform = viewModel.SelectedOriginPlatform,
                     TargetPlatform = viewModel.SelectedTargetPlatform,
                     DateTime = DateTimeHelper.DateAndTimeToDateTime(viewModel.SelectedDate, viewModel.SelectedTime),
-                    WithDrawFromHoldings = viewModel.WithDrawFromHoldings
+                    IsTargetAdressMine = viewModel.IsTargetAdressMine,
+                    IsOriginAdressMine = viewModel.IsOriginAdressMine,
+                    Note = viewModel.Note
                 });
 
                 DepositWithdrawService.Instance.Update(DepositWithdrawls);

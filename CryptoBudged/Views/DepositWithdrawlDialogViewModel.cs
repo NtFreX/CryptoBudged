@@ -24,7 +24,9 @@ namespace CryptoBudged.Views
         public string TargetAdress { get; set; }
         public DateTime? SelectedTime { get; set; }
         public DateTime? SelectedDate { get; set; }
-        public bool WithDrawFromHoldings { get; set; } = true;
+        public string Note { get; set; }
+        public bool IsTargetAdressMine { get; set; } = true;
+        public bool IsOriginAdressMine { get; set; } = true;
 
         public string ValidationMessages
         {

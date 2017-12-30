@@ -13,13 +13,13 @@ namespace CryptoBudged.Services
 
         private HttpCachingService() { }
 
-        public async Task<string> GetStringAsync(string url)
+        public async Task<string> GetStringAsync(string url, TimeSpan cacheValidation)
         {
             lock (_lockObj)
             {
                 if (_lastRequests.ContainsKey(url))
                 {
-                    if (_lastRequests[url].ExecutedOn >= DateTime.Now - new TimeSpan(0, 0, 1))
+                    if (cacheValidation == TimeSpan.MaxValue || _lastRequests[url].ExecutedOn >= DateTime.Now - cacheValidation)
                     {
                         return _lastRequests[url].Result;
                     }
@@ -28,6 +28,7 @@ namespace CryptoBudged.Services
                 }
             }
 
+            Console.WriteLine("Get - " + url);
             var result = await _httpClient.GetStringAsync(url);
             lock (_lockObj)
             {

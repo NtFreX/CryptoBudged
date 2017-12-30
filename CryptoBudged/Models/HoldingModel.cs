@@ -10,5 +10,8 @@
         public double PriceInChf { get; set; }
         public double PriceInBtc { get; set; }
         public double PriceInEth { get; set; }
+        public double ProfitInChf { get; set; }
+        public double InvestmentInChf { get; set; }
+        public double ProfitInPercent { get; set; }
     }
 }

@@ -1,0 +1,6 @@
+btceUSD.csv source => http://api.bitcoincharts.com/v1/csv/
+export-EtherPrice.csv source => https://etherscan.io/chart/etherprice
+
+
+all coin widgedts
+https://www.worldcoinindex.com/widget

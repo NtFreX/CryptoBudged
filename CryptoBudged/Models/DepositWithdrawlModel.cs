@@ -13,6 +13,8 @@ namespace CryptoBudged.Models
         public double Amount { get; set; }
         public double Fees { get; set; }
         public DateTime DateTime { get; set; }
-        public bool WithDrawFromHoldings { get; set; }
+        public string Note { get; set; }
+        public bool IsTargetAdressMine { get; set; }
+        public bool IsOriginAdressMine { get; set; }
     }
 }
