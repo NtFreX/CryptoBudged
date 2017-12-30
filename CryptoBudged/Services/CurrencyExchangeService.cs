@@ -117,6 +117,9 @@ namespace CryptoBudged.Services
                 (x.CurrencyOne == currencyOne.ShortName || x.CurrencyTwo == currencyOne.ShortName) &&
                 (x.CurrencyTwo == currencyTwo.ShortName || x.CurrencyTwo == currencyOne.ShortName));
 
+            if (!File.Exists(exchangeRateConfiguration.FilePath))
+                return false;
+
             var fileHash = GetChecksum(exchangeRateConfiguration.FilePath);
             return File.Exists(exchangeRateConfiguration.FilePath + $".{fileHash}.indices");
         }

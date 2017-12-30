@@ -105,21 +105,19 @@ namespace CryptoBudged.Views
 
         public MainWindowViewModel()
         {
-            Task.Run(async () =>
-            {
-                var service = new BitfinexCurrencyExchangeService();
-                await service.ConvertAsync(
-                    CurrencyFactory.Instance.GetByShortName("IOT"),
-                    CurrencyFactory.Instance.GetByShortName("ETH"),
-                    100,
-                    DateTime.Now.AddMonths(-1));
+            //Task.Run(async () =>
+            //{
+            //    var service = new BitfinexCurrencyExchangeService();
+            //    await service.ConvertAsync(
+            //        CurrencyFactory.Instance.GetByShortName("IOT"),
+            //        CurrencyFactory.Instance.GetByShortName("ETH"),
+            //        100,
+            //        DateTime.Now.AddMonths(-1));
 
-            });
+            //});
 
             if (!CurrencyExchangeFactory.Instance.IsInitialized)
             {
-                IsLoading = true;
-
                 var dispatcher = Dispatcher.CurrentDispatcher;
                 var lastProgressReport = DateTime.MinValue;
                 void ProgressCallback(double progress)
@@ -137,8 +135,24 @@ namespace CryptoBudged.Views
 
                 Task.Run(async () =>
                 {
-                    await CurrencyExchangeFactory.Instance.InitializeAsync(ProgressCallback);
-                    dispatcher.Invoke(() => IsLoading = false);
+                    try
+                    {
+                        dispatcher.Invoke(() =>
+                        {
+                            IsLoading = true;
+                            LoadingText = $"Loading historical exchange rates 0.00%...";
+                        });
+
+                        await CurrencyExchangeFactory.Instance.InitializeAsync(ProgressCallback);
+                    }
+                    catch (Exception exce)
+                    {
+                        dispatcher.Invoke(() => LoadingText = $"Error during loading of historical exchange rates ({exce.Message})");
+                        dispatcher.Invoke(() => IsLoading = false);
+                    }
+                    finally
+                    {
+                    }
                 });
             }
         //var directory = @"C:\Projects\SandboxProjects\CryptoBudged\CryptoBudged\Seed\";
