@@ -79,9 +79,9 @@ namespace CryptoBudged.Views.Pages
                     Holdings = new ObservableCollection<HoldingModel>(HoldingsService.Instance.CalculateHoldings());
                     await Task.Delay(5000);
                 }
-                catch
+                catch (Exception exce)
                 {
-                    /* IGNORE */
+                    Logger.Instance.Log(new Exception("Error while reloading the `Holdings`", exce));
                 }
             }
         }

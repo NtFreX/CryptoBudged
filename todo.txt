@@ -1,6 +1,7 @@
  X add yes/no for count as "einzahlung"
  X * / bug?? (this is no bug)
  X bug changes arent saved (solve nicer)
+ - throttle thrid party apis to avoid to many requests
 
 ideas:
  - dashboard customizable with graphics and numbers
@@ -9,7 +10,13 @@ ideas:
  - add icons for coins and platforms
  - settings for (refresh rate, ..)
  - make grid sortable 
+ - on boarding with trade and deposit/withdraw import
+ - graphic with holdings in each currency over time in other fiat currency
+ - add liqui.io api
+ - tab view wallet overview where how much of what
+ - online state of third party apis
 
 cleaup
  - seperate view and viewmodel code
  - add dependency injection service
+ - remove initialialize from currency exchange services?

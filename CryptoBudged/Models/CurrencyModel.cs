@@ -8,6 +8,7 @@ namespace CryptoBudged.Models
         public string ShortName { get; set; }
         public string DisplayName { get; set; }
         public bool IsCryptoCurrency { get; set; }
+        public string[] TradingSymbols { get; set; }
 
         public string ImagePath => $"https://files.coinmarketcap.com/static/img/coins/32x32/{DisplayName.ToLower().Replace(" ", "-")}.png";
 

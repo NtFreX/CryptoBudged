@@ -53,9 +53,9 @@ namespace CryptoBudged.Views.Widgets
 
                     await Task.Delay(10000);
                 }
-                catch
+                catch (Exception exce)
                 {
-                    /* IGNORE */
+                    Console.WriteLine($"Error while reloading the `StackedIncomeInChfWidget`: {exce.Message}");
                 }
             }
         }

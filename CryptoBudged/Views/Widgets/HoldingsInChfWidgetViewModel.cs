@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CryptoBudged.Services;
 using Prism.Mvvm;
@@ -29,9 +30,9 @@ namespace CryptoBudged.Views.Widgets
                     TotalAmountInCHF = HoldingsService.Instance.CalculateHoldings().Sum(x => x.AmountInChf);
                     await Task.Delay(5000);
                 }
-                catch
+                catch (Exception exce)
                 {
-                    /* IGNORE */
+                    Logger.Instance.Log(new Exception("Error while reloading the `HoldingsInChfWidget`", exce));
                 }
             }
         }

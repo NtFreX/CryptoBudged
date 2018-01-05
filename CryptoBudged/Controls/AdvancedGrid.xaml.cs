@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
@@ -16,7 +18,9 @@ namespace CryptoBudged.Controls
     /// </summary>
     public partial class AdvancedGrid : UserControl
     {
+        private bool _isInitializing;
         private string _lastClickedHeader;
+        private string _lastSortBy;
         private ListSortDirection _lastSortDirection;
         private SortDescriptionCollection _currentSortDescriptions = new SortDescriptionCollection();
 
@@ -48,14 +52,35 @@ namespace CryptoBudged.Controls
             DependencyProperty.Register(nameof(ItemClickedCommand), typeof(DelegateCommand<object>), typeof(AdvancedGrid));
 
         public static readonly DependencyProperty ViewProperty = 
-            DependencyProperty.Register(nameof(View), typeof(ViewBase), typeof(AdvancedGrid));
-
+            DependencyProperty.Register(nameof(View), typeof(ViewBase), typeof(AdvancedGrid), new PropertyMetadata(ViewPropertyChanged));
+        
         public static readonly DependencyProperty ItemsSourceProperty = 
             DependencyProperty.Register(nameof(ItemsSource), typeof(IEnumerable), typeof(AdvancedGrid));
         
         public static readonly DependencyProperty GridConfigurationNameProperty =
             DependencyProperty.Register(nameof(GridConfigurationName), typeof(string), typeof(AdvancedGrid));
-        
+
+        private static void ViewPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
+        {
+            if (!(dependencyObject is AdvancedGrid advancedGrid))
+                return;
+
+            if (dependencyPropertyChangedEventArgs.OldValue != null)
+            {
+                if (dependencyPropertyChangedEventArgs.OldValue is GridView gridView)
+                {
+                    gridView.Columns.CollectionChanged -= advancedGrid.GridViewColumnHeaderChanged;
+                }
+            }
+            if (dependencyPropertyChangedEventArgs.NewValue != null)
+            {
+                if (dependencyPropertyChangedEventArgs.NewValue is GridView gridView)
+                {
+                    gridView.Columns.CollectionChanged += advancedGrid.GridViewColumnHeaderChanged;
+                }
+            }
+        }
+
         public AdvancedGrid()
         {
             InitializeComponent();
@@ -82,12 +107,30 @@ namespace CryptoBudged.Controls
             if (!(ListView.View is GridView gridView))
                 return;
 
+            _isInitializing = true;
+
             var configuration = GridConfigurationService.Instance.LoadConfiguration(GridConfigurationName);
             if (configuration != null)
             {
-                var column = gridView.Columns.First(x => x.Header.ToString() == configuration.HeaderName);
+                if (!string.IsNullOrEmpty(configuration.HeaderName) && !string.IsNullOrEmpty(configuration.OrderBy))
+                {
+                    var column = gridView.Columns.First(x => x.Header.ToString() == configuration.HeaderName);
+                    Sort(gridView, column, configuration.OrderBy, configuration.OrderDirection);
+                }
+                if (configuration.ColumnOrder != null && configuration.ColumnOrder.Any())
+                {
+                    OrderColumns(configuration.ColumnOrder);
+                }
+            }
 
-                Sort(gridView, column, configuration.OrderBy, configuration.OrderDirection);
+            _isInitializing = false;
+        }
+
+        private void GridViewColumnHeaderChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewStartingIndex != e.OldStartingIndex)
+            {
+                SaveGridConfiguration();
             }
         }
         private void GridViewColumnHeaderClickedHandler(object sender, RoutedEventArgs e)
@@ -118,7 +161,6 @@ namespace CryptoBudged.Controls
 
             Sort(gridView, column, propertyToOrder, sortDirection);
         }
-
         private string GetPropertyNameToOrder(GridViewColumn column)
         {
             var binding = column.DisplayMemberBinding as Binding;
@@ -167,17 +209,63 @@ namespace CryptoBudged.Controls
 
             column.HeaderTemplate = Resources[templateName] as DataTemplate;
 
+            _lastClickedHeader = column.Header.ToString();
+            _lastSortDirection = sortDirection;
+            _lastSortBy = sortBy;
+
+            SaveGridConfiguration();
+        }
+        private void SaveGridConfiguration()
+        {
+            if (_isInitializing) return;
+
+            var columnOrder = new List<string>();
+            if (ListView.View is GridView gridView)
+            {
+                foreach (var column in gridView.Columns)
+                {
+                    try
+                    {
+                        columnOrder.Add(column.Header.ToString());
+                    }
+                    catch
+                    {
+                        break;
+                    }
+                }
+            }
+            
             GridConfigurationService.Instance.SaveConfiguration(
                 GridConfigurationName,
                 new GridConfigurationModel
                 {
-                    OrderBy = sortBy,
-                    OrderDirection = sortDirection,
-                    HeaderName = column.Header.ToString()
+                    OrderBy = _lastSortBy,
+                    OrderDirection = _lastSortDirection,
+                    HeaderName = _lastClickedHeader,
+                    ColumnOrder = columnOrder
                 });
+        }
+        private void OrderColumns(List<string> columnOrders)
+        {
+            if (!(ListView.View is GridView gridView))
+                return;
 
-            _lastClickedHeader = column.Header.ToString();
-            _lastSortDirection = sortDirection;
+            var oldColumns = gridView.Columns.ToArray();
+            var newColumns = new List<GridViewColumn>();
+            foreach (var columnOrder in columnOrders)
+            {
+                foreach (var column in oldColumns)
+                {
+                    if (column.Header.ToString() == columnOrder)
+                    {
+                        newColumns.Add(column);
+                        break;
+                    }
+                }
+            }
+            
+            gridView.Columns.Clear();
+            newColumns.ForEach(gridView.Columns.Add);
         }
 
         private void HandlePreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

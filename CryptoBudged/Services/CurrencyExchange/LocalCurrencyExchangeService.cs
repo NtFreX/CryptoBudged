@@ -3,20 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Runtime.Remoting;
-using System.Security.Cryptography;
-using System.Security.Policy;
 using System.Threading.Tasks;
+using CryptoBudged.Extensions;
 using CryptoBudged.Factories;
 using CryptoBudged.Models;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace CryptoBudged.Services
+namespace CryptoBudged.Services.CurrencyExchange
 {
     public class LocalCurrencyExchangeService : ICurrencyExchangeService
     {
@@ -140,7 +136,7 @@ namespace CryptoBudged.Services
                 while (reader.Read())
                 {
                     var currentTimeStamp = reader.GetField<long>(0);
-                    var currentDateTime = UnixTimeStampToDateTime(currentTimeStamp);
+                    var currentDateTime = DateTimeExtensions.UnixTimeSecondsToDateTime(currentTimeStamp);
 
                     if (indexes.All(x => x.Year != currentDateTime.Year))
                         indexes.Add(new YearIndex
@@ -227,6 +223,8 @@ namespace CryptoBudged.Services
             
             exchangeRateConfiguration.AfterDownloadAction(exchangeRateConfiguration.FilePath, ProgressCallback);
         }
+        public async Task<TimeSpan> IsRateLimitedAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, DateTime dateTime)
+            => await Task.FromResult(TimeSpan.Zero);
         public async Task<double> ConvertAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, double amount, DateTime dateTime)
         {
             if (!await CanConvertAsync(originCurrency, targetCurrency))
@@ -261,8 +259,10 @@ namespace CryptoBudged.Services
 
         private string GetChecksum(string file)
         {
-            return "_";
+            var fileInfo = new FileInfo(file);
+            return fileInfo.LastWriteTime.ToUnixTimeSeconds().ToString();
 
+            // calculating this ckecksum takes to long
             //using (FileStream stream = File.OpenRead(file))
             //{
             //    var sha = new SHA256Managed();
@@ -274,7 +274,7 @@ namespace CryptoBudged.Services
             => File.Delete(filePath);
         private double GetNearestExchangeRate(string exchangeRateFile, long startingPoint, DateTime dateTime)
         {
-            var timestamp = DateTimeToUnixTimestamp(dateTime);
+            var timestamp = dateTime.ToUnixTimeSeconds();
             (long TimeStamp, double Amount)? lastPrice = null;
             //var hasRead = false;
             //while (!hasRead)
@@ -303,7 +303,7 @@ namespace CryptoBudged.Services
                         //    }
                         //}
                         var currentTimeStamp = reader.GetField<long>(0);
-                        if (currentTimeStamp > timestamp && UnixTimeStampToDateTime(currentTimeStamp) <= DateTime.Now)
+                        if (currentTimeStamp > timestamp && DateTimeExtensions.UnixTimeSecondsToDateTime(currentTimeStamp) <= DateTime.Now)
                         {
                             if (lastPrice == null)
                             {
@@ -329,11 +329,11 @@ namespace CryptoBudged.Services
             }
 
             //if (!hasRead)
-                //{
-                //    // TODO: fix eth indexing
-                //    startingPoint = 0;
-                //}
-           // }
+            //{
+            //    // TODO: fix eth indexing
+            //    startingPoint = 0;
+            //}
+            // }
 
             if (lastPrice != null)
                 return lastPrice.Value.Amount;
@@ -359,13 +359,6 @@ namespace CryptoBudged.Services
             var dayIndex = monthIndex?.DayIndices.FirstOrDefault(x => x.Day == theHourBefore.Day);
             var hourIndex = dayIndex?.HourIndices.FirstOrDefault(x => x.Hour == theHourBefore.Hour);
             return hourIndex?.Position ?? dayIndex?.Position ?? monthIndex?.Position ?? yearIndex?.Position ?? 0;
-        }
-        private Int32 DateTimeToUnixTimestamp(DateTime dateTime) 
-            => (Int32)dateTime.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-        private DateTime UnixTimeStampToDateTime(double unixTimeStamp)
-        {
-            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            return dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
         }
 
         private class YearIndex
@@ -394,144 +387,5 @@ namespace CryptoBudged.Services
                 }
             }
         }
-    }
-
-    public class CloudFiatCurrencyExchangeService : ICurrencyExchangeService
-    {
-        public bool IsInitialized { get; } = true;
-        public Task InitializeAsync(Action<double> progressCallback) => Task.CompletedTask;
-
-        public Task<bool> CanConvertAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency)
-            => Task.FromResult(!originCurrency.IsCryptoCurrency && !targetCurrency.IsCryptoCurrency);
-
-        public async Task<double> ConvertAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, double amount, DateTime dateTime)
-        {
-            var content = await HttpCachingService.Instance.GetStringAsync($"https://api.fixer.io/{FormatDate(dateTime)}?base={originCurrency.ShortName}", TimeSpan.MaxValue);
-            dynamic obj = JObject.Parse(content);
-            if (!(obj.rates is JObject rates))
-                throw new Exception();
-            var exchangeRate = double.Parse(rates.Property(targetCurrency.ShortName).Value.ToString());
-            return exchangeRate * amount;
-        }
-
-        private string FormatDate(DateTime dateTime)
-            => $"{dateTime.Year:0000}-{dateTime.Month:00}-{dateTime.Day:00}";
-    }
-
-    public class BitfinexCurrencyExchangeService : ICurrencyExchangeService
-    {
-        public bool IsInitialized { get; } = true;
-
-        public Task InitializeAsync(Action<double> progressCallback) => Task.CompletedTask;
-
-        public async Task<bool> CanConvertAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency)
-        {
-            var exchangeRateSymbols = await GetExchangeSymbolsAsync();
-            return exchangeRateSymbols
-                .Select(x => x.ToUpper())
-                .Any(x => x == originCurrency.ShortName + targetCurrency.ShortName || x == targetCurrency.ShortName + originCurrency.ShortName);
-        }
-
-        public async Task<double> ConvertAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, double amount, DateTime dateTime)
-        {
-            if(!await CanConvertAsync(originCurrency, targetCurrency))
-                throw new ArgumentException();
-
-            var exchangeRateSymbols = await GetExchangeSymbolsAsync();
-            var originToTargetSymbol = exchangeRateSymbols.FirstOrDefault(x => x.ToUpper() == originCurrency.ShortName + targetCurrency.ShortName);
-            var targetToOriginSymbol = exchangeRateSymbols.FirstOrDefault(x => x.ToUpper() == targetCurrency.ShortName + originCurrency.ShortName);
-            var exchangeRateSymbol = !string.IsNullOrEmpty(originToTargetSymbol) ? originToTargetSymbol : targetToOriginSymbol;
-            exchangeRateSymbol = exchangeRateSymbol?.ToUpper();
-
-            DateTime.SpecifyKind(dateTime.AddMinutes(-4), DateTimeKind.Utc);
-            //var end = dateTime.AddMinutes(4).ToUniversalTime().ToUnixTimeMilliseconds();
-            
-            //var trades = await HttpCachingService.Instance.GetStringAsync($"https://api.bitfinex.com/v2/trades/t{exchangeRateSymbol}/hist?end={end}", TimeSpan.FromMinutes(5));
-            
-            //throw new Exception();
-            return 0;
-        }
-
-        private async Task<List<string>> GetExchangeSymbolsAsync()
-        {
-            var response = await HttpCachingService.Instance.GetStringAsync("https://api.bitfinex.com/v1/symbols", TimeSpan.FromHours(1));
-            return JsonConvert.DeserializeObject<List<string>>(response);
-        }
-
-        private Int32 DateTimeToUnixTimestamp(DateTime dateTime)
-            => (Int32)dateTime.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-    }
-
-    public interface ICurrencyExchangeService
-    {
-        bool IsInitialized { get; }
-        Task InitializeAsync(Action<double> progressCallback);
-
-        Task<bool> CanConvertAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency);
-        Task<double> ConvertAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, double amount, DateTime dateTime);
-    }
-
-    public class CurrencyExchangeFactory
-    {
-        private readonly List<ICurrencyExchangeService> _currencyExchangeServices = new List<ICurrencyExchangeService>(new ICurrencyExchangeService[]
-        {
-            new LocalCurrencyExchangeService(),
-            new CloudFiatCurrencyExchangeService()
-        });
-
-        public bool IsInitialized { get; private set; }
-
-        public async Task InitializeAsync(Action<double> progressCallback)
-        {
-            var progressIndex = 0;
-            var serviceCount = _currencyExchangeServices.Count;
-            void ProgressCallback(double progress)
-            {
-                progressCallback(progress / serviceCount + (100.0 / serviceCount * progressIndex));
-            }
-
-            progressCallback(0);
-            foreach (var currencyExchangeService in _currencyExchangeServices)
-            {
-                if (!currencyExchangeService.IsInitialized)
-                    await currencyExchangeService.InitializeAsync(ProgressCallback);
-
-                progressIndex++;
-
-                progressCallback(100.0 / serviceCount * progressIndex);
-            }
-
-            IsInitialized = true;
-        }
-
-        private CurrencyExchangeFactory() { }
-
-        public async Task<bool> CanConvertAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency)
-        {
-            foreach (var currencyExchangeService in _currencyExchangeServices)
-            {
-                if (await currencyExchangeService.CanConvertAsync(originCurrency, targetCurrency))
-                    return true;
-            }
-            return false;
-        }
-
-        public async Task<double> ConvertAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, double amount, DateTime dateTime)
-        {
-            if(!await CanConvertAsync(originCurrency, targetCurrency))
-                throw new ArgumentException();
-            if(!IsInitialized)
-                throw new ArgumentException();
-
-            foreach (var service in _currencyExchangeServices)
-            {
-                if (await service.CanConvertAsync(originCurrency, targetCurrency))
-                    return await service.ConvertAsync(originCurrency, targetCurrency, amount, dateTime);
-            }
-            
-            throw new Exception();
-        }
-
-        public static CurrencyExchangeFactory Instance { get; } = new CurrencyExchangeFactory();
     }
 }

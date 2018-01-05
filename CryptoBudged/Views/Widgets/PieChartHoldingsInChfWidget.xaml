@@ -7,8 +7,18 @@
              xmlns:wpf="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <wpf:PieChart LegendLocation="Bottom" Series="{Binding HoldingsPieChartSeries}" Hoverable="False" DisableAnimations="True" />
+    <Grid Margin="4">
+        <Border BorderBrush="LightGray" BorderThickness="1">
+            <DockPanel LastChildFill="True">
+                <Label Content="Holdings in % in CHF" FontWeight="Bold" DockPanel.Dock="Top" />
+                <ProgressBar IsIndeterminate="{Binding IsLoading}" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" DockPanel.Dock="Top" />
+                <wpf:PieChart LegendLocation="Bottom" Series="{Binding HoldingsPieChartSeries}" Hoverable="False" DockPanel.Dock="Top">
+                    <wpf:PieChart.DataTooltip>
+                        <wpf:DefaultTooltip SelectionMode="OnlySender" />
+                    </wpf:PieChart.DataTooltip>
+                </wpf:PieChart>
+            </DockPanel>
+        </Border>
         <DockPanel>
             <Button Width="40" Height="40" VerticalAlignment="Top" Panel.ZIndex="1" Margin="4" DockPanel.Dock="Top" HorizontalAlignment="Right" Command="{Binding RefreshChartCommand}">
                 <Button.Template>

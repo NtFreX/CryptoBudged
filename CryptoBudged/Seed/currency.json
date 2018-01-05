@@ -2,56 +2,67 @@
   {
     "displayName": "Euro",
     "shortName": "EUR",
+    "tradingSymbols": [ "EUR" ],
     "isCryptoCurrency": false
   },
   {
     "displayName": "US Dollar",
     "shortName": "USD",
+    "tradingSymbols": [ "USD", "USDT" ],
     "isCryptoCurrency": false
   },
   {
     "displayName": "Schweizer Franken",
     "shortName": "CHF",
+    "tradingSymbols": [ "CHF" ],
     "isCryptoCurrency": false
   },
   {
     "displayName": "Bitcoin",
     "shortName": "BTC",
+    "tradingSymbols": [ "BTC" ],
     "isCryptoCurrency": true
   },
   {
     "displayName": "Ethereum",
     "shortName": "ETH",
+    "tradingSymbols": [ "ETH" ],
     "isCryptoCurrency": true
   },
   {
     "displayName": "IOTA",
     "shortName": "IOT",
+    "tradingSymbols": [ "IOT" ],
     "isCryptoCurrency": true
   },
   {
     "displayName": "Tronix",
     "shortName": "TRX",
+    "tradingSymbols": [ "TRX" ],
     "isCryptoCurrency": true
   },
   {
     "displayName": "NEO",
     "shortName": "NEO",
+    "tradingSymbols": [ "NEO" ],
     "isCryptoCurrency": true
   },
   {
     "displayName": "Request Network",
     "shortName": "REQ",
+    "tradingSymbols": [ "REQ" ],
     "isCryptoCurrency": true
   },
   {
     "displayName": "Ripple",
     "shortName": "XRP",
+    "tradingSymbols": [ "XRP" ],
     "isCryptoCurrency": true
   },
   {
     "displayName": "Verge",
     "shortName": "XVG",
+    "tradingSymbols": [ "XVG" ],
     "isCryptoCurrency": true
   }
 ]

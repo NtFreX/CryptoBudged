@@ -81,6 +81,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
@@ -107,15 +108,32 @@
     </Compile>
     <Compile Include="Controls\AdvancedGridViewColumn.cs" />
     <Compile Include="Converter\SignToBrushConverter.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Helpers\AsyncRateLimitedCachedFunction.cs" />
     <Compile Include="Helpers\DateTimeHelper.cs" />
     <Compile Include="Helpers\CachedFunction.cs" />
+    <Compile Include="Helpers\RateLimitedFunction.cs" />
     <Compile Include="Models\GridConfigurationModel.cs" />
-    <Compile Include="Services\CurrencyExchangeService.cs" />
+    <Compile Include="Services\CurrencyExchange\BinanceCurrencyExchangeService.cs" />
+    <Compile Include="Services\CurrencyExchange\BitfinexCurrencyExchangeService.cs" />
+    <Compile Include="Services\CurrencyExchange\CloudFiatCurrencyExchangeService.cs" />
+    <Compile Include="Services\CurrencyExchange\CoinbaseCurrencyExchangeService.cs" />
+    <Compile Include="Services\CurrencyExchange\CurrencyExchangeFactory.cs" />
+    <Compile Include="Services\CurrencyExchange\ICurrencyExchangeService.cs" />
     <Compile Include="Services\DepositWithdrawService.cs" />
     <Compile Include="Services\ExchangesService.cs" />
     <Compile Include="Services\FileStoreService.cs" />
     <Compile Include="Services\GridConfigurationService.cs" />
     <Compile Include="Services\HoldingsService.cs" />
+    <Compile Include="Services\CurrencyExchange\LocalCurrencyExchangeService.cs" />
+    <Compile Include="Services\Logger.cs" />
+    <Compile Include="ThirdPartyApi\BinanceApi.cs" />
+    <Compile Include="ThirdPartyApi\BitfinexApi.cs" />
+    <Compile Include="ThirdPartyApi\CoinbaseApi.cs" />
+    <Compile Include="ThirdPartyApi\CryptocompareApi.cs" />
+    <Compile Include="ThirdPartyApi\FixerApi.cs" />
+    <Compile Include="Helpers\AdvancedHttpRequest.cs" />
+    <Compile Include="ThirdPartyApi\RestApiClient.cs" />
     <Compile Include="Views\Pages\DepositWithdrawPage.xaml.cs">
       <DependentUpon>DepositWithdrawPage.xaml</DependentUpon>
     </Compile>
@@ -128,6 +146,10 @@
       <DependentUpon>HoldingsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\HoldingsViewModel.cs" />
+    <Compile Include="Views\InfoDialog.xaml.cs">
+      <DependentUpon>InfoDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InfoDialogViewModel.cs" />
     <Compile Include="Views\Widgets\HoldingsInBtcWidget.xaml.cs">
       <DependentUpon>HoldingsInBtcWidget.xaml</DependentUpon>
     </Compile>
@@ -140,22 +162,38 @@
       <DependentUpon>HoldingsInEthWidget.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Widgets\HoldingsInEthWidgetViewModel.cs" />
+    <Compile Include="Views\Widgets\InvestmentInTotalWidget.xaml.cs">
+      <DependentUpon>InvestmentInTotalWidget.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Widgets\InvestmentInTotalWidgetViewModel.cs" />
     <Compile Include="Views\Widgets\PieChartHoldingsInChfWidget.xaml.cs">
       <DependentUpon>PieChartHoldingsInChfWidget.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Widgets\PieChartHoldingsInChfWidgetViewModel.cs" />
+    <Compile Include="Views\Widgets\ProfitsInPercentWidgetViewModel.cs" />
+    <Compile Include="Views\Widgets\ProfitsInPercentWidget.xaml.cs">
+      <DependentUpon>ProfitsInPercentWidget.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Widgets\ProfitsInTotalWidgetViewModel.cs" />
-    <Compile Include="Views\Widgets\ProfitsInTotalWidgetxaml.xaml.cs">
-      <DependentUpon>ProfitsInTotalWidgetxaml.xaml</DependentUpon>
+    <Compile Include="Views\Widgets\ProfitsInTotalWidget.xaml.cs">
+      <DependentUpon>ProfitsInTotalWidget.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Widgets\StackedCryptoDevelopmentWidget.xaml.cs">
       <DependentUpon>StackedCryptoDevelopmentWidget.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Widgets\StackedCryptoDevelopmentWidgetViewModel.cs" />
+    <Compile Include="Views\Widgets\StackedHistoricalHoldingsWidget.xaml.cs">
+      <DependentUpon>StackedHistoricalHoldingsWidget.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Widgets\StackedHistoricalHoldingsWidgetViewModel.cs" />
     <Compile Include="Views\Widgets\StackedIncomeInChfWidget.xaml.cs">
       <DependentUpon>StackedIncomeInChfWidget.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Widgets\StackedIncomeInChfWidgetViewModel.cs" />
+    <Compile Include="Views\Widgets\StackedProfitInPercentWidget.xaml.cs">
+      <DependentUpon>StackedProfitInPercentWidget.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Widgets\StackedProfitInPercentWidgetViewModel.cs" />
     <Compile Include="Views\Widgets\TradingViewWidget.xaml.cs">
       <DependentUpon>TradingViewWidget.xaml</DependentUpon>
     </Compile>
@@ -214,6 +252,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\InfoDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Widgets\HoldingsInBtcWidget.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -226,11 +268,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Widgets\InvestmentInTotalWidget.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Widgets\PieChartHoldingsInChfWidget.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Widgets\ProfitsInTotalWidgetxaml.xaml">
+    <Page Include="Views\Widgets\ProfitsInPercentWidget.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Widgets\ProfitsInTotalWidget.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -238,7 +288,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Widgets\StackedHistoricalHoldingsWidget.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Widgets\StackedIncomeInChfWidget.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Widgets\StackedProfitInPercentWidget.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -282,6 +340,46 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bitfinex.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\binance.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cryptocompare.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\fixer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\coinbase.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\binance.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\bitfinex.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\coinbase.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\cryptocompare.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\fixer.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\information.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\settings.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\cef.redist.x64.3.2987.1601\build\cef.redist.x64.targets" Condition="Exists('..\packages\cef.redist.x64.3.2987.1601\build\cef.redist.x64.targets')" />

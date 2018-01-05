@@ -7,6 +7,6 @@
              mc:Ignorable="d">
     <StackPanel Orientation="Horizontal">
         <Label FontWeight="Bold">In CHF</Label>
-        <Label Content="{Binding TotalAmountInCHF}" />
+        <Label Content="{Binding TotalAmountInCHF}" ContentStringFormat="0.00" />
     </StackPanel>
 </UserControl>

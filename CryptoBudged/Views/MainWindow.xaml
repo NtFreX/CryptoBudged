@@ -27,12 +27,22 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
         
             <DockPanel Grid.Row="0" LastChildFill="True">
                 <materialDesign:Card Padding="12" Margin="8" DockPanel.Dock="Top">
                     <DockPanel>
                         <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}">Crypto Budget</TextBlock>
+                        
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                            <Button Command="{Binding SettingsCommdand}" Background="Transparent" BorderBrush="Transparent">
+                                <Image Source="/Images/settings.png" Width="25" />
+                            </Button>
+                            <Button Command="{Binding InformationCommand}" Background="Transparent" BorderBrush="Transparent">
+                                <Image Source="/Images/information.png" Width="25" />
+                            </Button>
+                        </StackPanel>
                     </DockPanel>
                 </materialDesign:Card>
 
@@ -48,17 +58,26 @@
                                     <widgets:HoldingsInChfWidget />
                                     <widgets:HoldingsInBtcWidget />
                                     <widgets:HoldingsInEthWidget />
+                                    <widgets:InvestmentInTotalWidget />
+                                    <widgets:ProfitsInTotalWidget />
+                                    <widgets:ProfitsInPercentWidget />
                                 </StackPanel>
                             </materialDesign:Card>
 
                             <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
-                                <widgets:PieChartHoldingsInChfWidget Grid.Column="0" />
-                                <widgets:ProfitsInTotalWidgetxaml Grid.Column="1" />
+                                <widgets:StackedHistoricalHoldingsWidget Grid.Row="0" Grid.ColumnSpan="2" />
+                                
+                                <widgets:PieChartHoldingsInChfWidget Grid.Row="1" Grid.Column="0" />
+                                <widgets:StackedProfitInPercentWidget Grid.Row="1" Grid.Column="1" />
                             </Grid>
                         </DockPanel>
                     </TabItem>
@@ -80,13 +99,14 @@
                         <TabItem.Header>
                             <Label>Deposits and Withdrawals</Label>
                         </TabItem.Header>
-                    
+
                         <pages:DepositWithdrawPage />
                     </TabItem>
                 </TabControl>
             </DockPanel>
 
             <Label Grid.Row="1" Content="{Binding LoadingText}" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            <Label Grid.Row="2" Content="{Binding ErrorText}" Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}" Foreground="Red" />
         </Grid>
     </materialDesign:DialogHost>
 </Window>

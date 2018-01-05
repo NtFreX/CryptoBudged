@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CryptoBudged.Factories;
 using CryptoBudged.Helpers;
 using CryptoBudged.Models;
+using CryptoBudged.ThirdPartyApi;
 
 namespace CryptoBudged.Services
 {
@@ -14,107 +15,86 @@ namespace CryptoBudged.Services
 
         public IList<HoldingModel> CalculateHoldings() => _cachedCalculateHoldings.Execute();
 
-        private readonly CachedFunction<IList<HoldingModel>> _cachedCalculateHoldings = new CachedFunction<IList<HoldingModel>>(
-            () =>
+        private readonly CachedFunction<IList<HoldingModel>> _cachedCalculateHoldings = new CachedFunction<IList<HoldingModel>>(CalculateHoldingsInner, TimeSpan.FromSeconds(5));
+        private static IList<HoldingModel> CalculateHoldingsInner()
+        {
+            var holdings = new List<HoldingModel>();
+
+            foreach (var exchange in ExchangesService.Instance.GetAll())
             {
-                var holdings = new List<HoldingModel>();
-
-                foreach (var exchange in ExchangesService.Instance.GetAll())
+                if (holdings.All(x => x.Currency.ShortName != exchange.OriginCurrency.ShortName))
                 {
-                    if (holdings.All(x => x.Currency.ShortName != exchange.OriginCurrency.ShortName))
+                    holdings.Add(new HoldingModel
                     {
-                        holdings.Add(new HoldingModel
-                        {
-                            Amount = 0,
-                            Currency = exchange.OriginCurrency
-                        });
-                    }
-                    if (holdings.All(x => x.Currency.ShortName != exchange.TargetCurrency.ShortName))
+                        Amount = 0,
+                        Currency = exchange.OriginCurrency
+                    });
+                }
+                if (holdings.All(x => x.Currency.ShortName != exchange.TargetCurrency.ShortName))
+                {
+                    holdings.Add(new HoldingModel
                     {
-                        holdings.Add(new HoldingModel
-                        {
-                            Amount = 0,
-                            Currency = exchange.TargetCurrency
-                        });
-                    }
-
-                    holdings.Find(x => x.Currency.ShortName == exchange.OriginCurrency.ShortName).Amount -=
-                        exchange.OriginAmount;
-                    holdings.Find(x => x.Currency.ShortName == exchange.TargetCurrency.ShortName).Amount +=
-                        exchange.TargetAmount;
+                        Amount = 0,
+                        Currency = exchange.TargetCurrency
+                    });
                 }
 
-                foreach (var depositWithdrawl in DepositWithdrawService.Instance.GetAll())
-                {
-                    if (holdings.All(x => x.Currency.ShortName != depositWithdrawl.Currency.ShortName))
-                    {
-                        holdings.Add(new HoldingModel
-                        {
-                            Amount = 0,
-                            Currency = depositWithdrawl.Currency
-                        });
-                    }
+                holdings.Find(x => x.Currency.ShortName == exchange.OriginCurrency.ShortName).Amount -= exchange.OriginAmount;
+                holdings.Find(x => x.Currency.ShortName == exchange.TargetCurrency.ShortName).Amount += exchange.TargetAmount;
+            }
 
-                    if (depositWithdrawl.IsTargetAdressMine)
+            foreach (var depositWithdrawl in DepositWithdrawService.Instance.GetAll())
+            {
+                if (holdings.All(x => x.Currency.ShortName != depositWithdrawl.Currency.ShortName))
+                {
+                    holdings.Add(new HoldingModel
                     {
-                        holdings.Find(x => x.Currency.ShortName == depositWithdrawl.Currency.ShortName).Amount +=
-                            depositWithdrawl.Amount - depositWithdrawl.Fees;
-                    }
-                    if (depositWithdrawl.IsOriginAdressMine)
-                    {
-                        holdings.Find(x => x.Currency.ShortName == depositWithdrawl.Currency.ShortName).Amount -=
-                            depositWithdrawl.Amount;
-                    }
+                        Amount = 0,
+                        Currency = depositWithdrawl.Currency
+                    });
                 }
 
-                holdings.RemoveAll(x => x.Amount == 0);
-                
-                var tasks = new List<Task>();
-                foreach (var holding in holdings)
+                if (depositWithdrawl.IsTargetAdressMine)
                 {
-                    var tmpHolding = holding;
-                    tasks.Add(Task.Run(async () =>
-                    {
-                        var prices = await CryptoCurrencyService.Instance.GetCurrentPricesAsync(holding.Currency.ShortName);
-                        tmpHolding.AmountInBtc = tmpHolding.Amount * prices.BTC;
-                        tmpHolding.AmountInChf = tmpHolding.Amount * prices.CHF;
-                        tmpHolding.AmountInEth = tmpHolding.Amount * prices.ETH;
-
-                        tmpHolding.PriceInBtc = prices.BTC;
-                        tmpHolding.PriceInChf = prices.CHF;
-                        tmpHolding.PriceInEth = prices.ETH;
-                    }));
+                    holdings.Find(x => x.Currency.ShortName == depositWithdrawl.Currency.ShortName).Amount += depositWithdrawl.Amount - depositWithdrawl.Fees;
                 }
-
-                if (!Task.WaitAll(tasks.ToArray(), new TimeSpan(0, 0, 30)))
+                if (depositWithdrawl.IsOriginAdressMine)
                 {
-                    throw new TaskCanceledException();
+                    holdings.Find(x => x.Currency.ShortName == depositWithdrawl.Currency.ShortName).Amount -= depositWithdrawl.Amount;
                 }
+            }
 
-                var profitCalculationTasks = holdings.Select(holding => Task.Run(async () =>
-                    {
-                        var investmentInCurency = await CryptoCurrencyService.Instance.CalculateInvestmentAsync(holding.Currency, CurrencyFactory.Instance.GetByShortName("CHF"));
-                        var holdingInCurrency = holding.AmountInChf;
-                        var profitForCurrency = holdingInCurrency - investmentInCurency;
-                        var profitInPercent = holdingInCurrency / (investmentInCurency / 100.0) - 100.0;
+            holdings.RemoveAll(x => x.Amount == 0);
 
-                        holding.ProfitInChf = profitForCurrency;
-                        holding.ProfitInPercent = profitInPercent;
-                        holding.InvestmentInChf = investmentInCurency;
-                    }))
-                    .ToList();
+            Task.WaitAll(holdings.Select(holding => Task.Run(async () =>
+            {
+                var prices = await CryptocompareApi.Instance.GetCurrentPrices.ExecuteAsync(holding.Currency);
+                holding.AmountInBtc = holding.Amount * prices.BTC;
+                holding.AmountInChf = holding.Amount * prices.CHF;
+                holding.AmountInEth = holding.Amount * prices.ETH;
 
-                try
-                {
-                    Task.WaitAll(profitCalculationTasks.ToArray(), new TimeSpan(0, 0, 30));
-                }
-                catch
-                {
-                    /* IGNORE */
-                }
+                holding.PriceInBtc = prices.BTC;
+                holding.PriceInChf = prices.CHF;
+                holding.PriceInEth = prices.ETH;
+            })).ToArray());
 
-                return holdings;
-            }, TimeSpan.FromSeconds(5));
+            var chfCurrency = CurrencyFactory.Instance.GetByShortName("CHF");
+            Task.WaitAll(holdings.Select(holding => Task.Run(async () =>
+            {
+                var investmentInCurency =
+                    await CryptoCurrencyService.Instance.CalculateInvestmentAsync(holding.Currency, chfCurrency);
+                var holdingInCurrency = holding.AmountInChf;
+                var profitForCurrency = holdingInCurrency - investmentInCurency;
+                var profitInPercent = holdingInCurrency / (investmentInCurency / 100.0) - 100.0;
+
+                holding.ProfitInChf = profitForCurrency;
+                holding.ProfitInPercent = profitInPercent;
+                holding.InvestmentInChf = investmentInCurency;
+            })).ToArray());
+
+
+            return holdings;
+        }
 
         public static HoldingsService Instance { get; } = new HoldingsService();
     }

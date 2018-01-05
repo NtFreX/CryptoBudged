@@ -35,9 +35,9 @@ namespace CryptoBudged.Views.Widgets
                     CalculateLineChart();
                     await Task.Delay(10000);
                 }
-                catch
+                catch (Exception exce)
                 {
-                    /* IGNORE */
+                    Console.WriteLine($"Error while reloading the `StackedCryptoDevelopmentWidget`: {exce.Message}");
                 }
             }
         }

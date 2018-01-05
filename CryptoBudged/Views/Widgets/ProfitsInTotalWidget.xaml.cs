@@ -18,9 +18,9 @@ namespace CryptoBudged.Views.Widgets
     /// <summary>
     /// Interaction logic for ProfitsInTotalWidgetxaml.xaml
     /// </summary>
-    public partial class ProfitsInTotalWidgetxaml : UserControl
+    public partial class ProfitsInTotalWidget : UserControl
     {
-        public ProfitsInTotalWidgetxaml()
+        public ProfitsInTotalWidget()
         {
             InitializeComponent();
             DataContext = new ProfitsInTotalWidgetViewModel();

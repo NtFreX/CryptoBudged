@@ -12,10 +12,6 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <converter:SignToBrushConverter x:Key="SignToBrushConverter" />
-        
-        <DataTemplate x:Key="ProfitItemTemplate">
-            <TextBlock Text="{Binding}" Foreground="{Binding Converter={StaticResource SignToBrushConverter}}" />
-        </DataTemplate>
     </UserControl.Resources>
     
     <DockPanel LastChildFill="True">
@@ -24,6 +20,9 @@
                 <widgets:HoldingsInChfWidget />
                 <widgets:HoldingsInBtcWidget />
                 <widgets:HoldingsInEthWidget />
+                <widgets:InvestmentInTotalWidget />
+                <widgets:ProfitsInTotalWidget />
+                <widgets:ProfitsInPercentWidget />
             </StackPanel>
         </materialDesign:Card>
 
@@ -39,11 +38,23 @@
                     </GridViewColumn>
                     <GridViewColumn Header="Currency" Width="120" DisplayMemberBinding="{Binding Currency}" />
                     <GridViewColumn Header="Amount" Width="100" DisplayMemberBinding="{Binding Amount}" />
-                    <GridViewColumn Header="Amount in CHF" Width="145" DisplayMemberBinding="{Binding AmountInChf}" />
+                    <GridViewColumn Header="Amount in CHF" Width="145" DisplayMemberBinding="{Binding AmountInChf, StringFormat=0.00}" />
                     <GridViewColumn Header="Price in CHF" Width="130" DisplayMemberBinding="{Binding PriceInChf}" />
-                    <GridViewColumn Header="Profit in CHF" Width="130" DisplayMemberBinding="{Binding ProfitInChf}" CellTemplate="{StaticResource ProfitItemTemplate}" />
-                    <GridViewColumn Header="Profit in %" Width="130" DisplayMemberBinding="{Binding ProfitInPercent}" CellTemplate="{StaticResource ProfitItemTemplate}" />
-                    <GridViewColumn Header="Investment in CHF" Width="140" DisplayMemberBinding="{Binding InvestmentInChf}" />
+                    <controls:AdvancedGridViewColumn Header="Profit in CHF" Width="130" SortByPropertyName="ProfitInChf">
+                        <controls:AdvancedGridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding ProfitInChf, StringFormat=0.00}" Foreground="{Binding ProfitInChf, Converter={StaticResource SignToBrushConverter}}" />
+                            </DataTemplate>
+                        </controls:AdvancedGridViewColumn.CellTemplate>    
+                    </controls:AdvancedGridViewColumn>
+                    <controls:AdvancedGridViewColumn Header="Profit in %" Width="130" SortByPropertyName="ProfitInPercent">
+                        <controls:AdvancedGridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding ProfitInPercent, StringFormat=0.00}" Foreground="{Binding ProfitInPercent, Converter={StaticResource SignToBrushConverter}}" />
+                            </DataTemplate>
+                        </controls:AdvancedGridViewColumn.CellTemplate>
+                    </controls:AdvancedGridViewColumn>
+                    <GridViewColumn Header="Investment in CHF" Width="140" DisplayMemberBinding="{Binding InvestmentInChf, StringFormat=0.00}" />
                     <GridViewColumn Header="Amount in BTC" Width="145" DisplayMemberBinding="{Binding AmountInBtc}" />
                     <GridViewColumn Header="Price in BTC" Width="130" DisplayMemberBinding="{Binding PriceInBtc}" />
                     <GridViewColumn Header="Amount in ETH" Width="145" DisplayMemberBinding="{Binding AmountInEth}" />

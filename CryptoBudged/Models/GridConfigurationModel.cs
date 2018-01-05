@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace CryptoBudged.Models
 {
@@ -7,5 +8,7 @@ namespace CryptoBudged.Models
         public string OrderBy { get; set; }
         public string HeaderName { get; set; }
         public ListSortDirection OrderDirection { get; set; }
+
+        public List<string> ColumnOrder { get; set; }
     }
 }
