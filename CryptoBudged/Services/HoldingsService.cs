@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CryptoBudged.Factories;
-using CryptoBudged.Helpers;
 using CryptoBudged.Models;
 using CryptoBudged.ThirdPartyApi;
+using NtFreX.RestClient.NET.Flow;
 
 namespace CryptoBudged.Services
 {
@@ -15,7 +15,11 @@ namespace CryptoBudged.Services
 
         public IList<HoldingModel> CalculateHoldings() => _cachedCalculateHoldings.Execute();
 
-        private readonly CachedFunction<IList<HoldingModel>> _cachedCalculateHoldings = new CachedFunction<IList<HoldingModel>>(CalculateHoldingsInner, TimeSpan.FromSeconds(5));
+        private readonly ConcurrentFunction<IList<HoldingModel>> _cachedCalculateHoldings = 
+            new ConcurrentFunction<IList<HoldingModel>>(
+                new CachedFunction<IList<HoldingModel>>(CalculateHoldingsInner, TimeSpan.FromSeconds(5)), 
+                1);
+
         private static IList<HoldingModel> CalculateHoldingsInner()
         {
             var holdings = new List<HoldingModel>();
@@ -81,8 +85,7 @@ namespace CryptoBudged.Services
             var chfCurrency = CurrencyFactory.Instance.GetByShortName("CHF");
             Task.WaitAll(holdings.Select(holding => Task.Run(async () =>
             {
-                var investmentInCurency =
-                    await CryptoCurrencyService.Instance.CalculateInvestmentAsync(holding.Currency, chfCurrency);
+                var investmentInCurency = await CryptoCurrencyService.Instance.CalculateInvestmentAsync(holding.Currency, chfCurrency);
                 var holdingInCurrency = holding.AmountInChf;
                 var profitForCurrency = holdingInCurrency - investmentInCurency;
                 var profitInPercent = holdingInCurrency / (investmentInCurency / 100.0) - 100.0;

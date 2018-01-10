@@ -13,7 +13,7 @@ namespace CryptoBudged.Services.CurrencyExchange
         public async Task<bool> CanConvertAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency)
             => await BitfinexApi.Instance.DoExchangeRatesExist(originCurrency, targetCurrency);
         public async Task<TimeSpan> IsRateLimitedAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, DateTime dateTime)
-            => await BinanceApi.Instance.GetExchangeRate.IsRateLimitedAsync(originCurrency, targetCurrency, dateTime);
+            => await BinanceApi.Instance.GetExchangeRate.GetTimeToNextExecutionAsync(originCurrency, targetCurrency, dateTime);
         public async Task<double> ConvertAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, double amount, DateTime dateTime)
         {
             if(!await CanConvertAsync(originCurrency, targetCurrency))

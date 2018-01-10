@@ -1,49 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using CryptoBudged.Extensions;
-using CryptoBudged.Helpers;
 using CryptoBudged.Models;
+using CryptoBudged.ThirdPartyApi.Wrapper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using NtFreX.RestClient.NET.Flow;
+
 namespace CryptoBudged.ThirdPartyApi
 {
-    public class BitfinexApi
+    public class BitfinexApi : IDisposable
     {
-        private static readonly HttpClient BitfinexHttpClient = new HttpClient();
+        private readonly BitfinexApiWrapper _bitfinexApiWrapper = new BitfinexApiWrapper();
 
-        #region Raw data
-        private static readonly Func<string> GetExchangeSymbolsUriBuilder = () => "https://api.bitfinex.com/v1/symbols";
-        private static readonly Func<string, DateTime, string> GetTradesUriBuilder = (symbol, end) => $"https://api.bitfinex.com/v2/trades/t{symbol}/hist?end={end.ToUnixTimeMilliseconds()}";
+        private BitfinexApi()
+        {
+            GetExchangeSymbols = new AsyncCachedFunction<List<string>>(GetExchangeSymbolsAsync, TimeSpan.FromMinutes(10));
+            GetExchangeRate = new AsyncTimeRateLimitedFunction<CurrencyModel, CurrencyModel, DateTime, double>(GetNearestExchangeRateAsync, _bitfinexApiWrapper.RestClient.MinInterval[BitfinexApiWrapper.BitfinexApiEndpointNames.Trades], DoNotRateLimitGetExchangeRateAsync);
 
-        private static readonly AdvancedHttpRequest GetExchangeSymbolsRequest = new AdvancedHttpRequest(httpClient: BitfinexHttpClient, uriBuilder: GetExchangeSymbolsUriBuilder, maxInterval: TimeSpan.FromSeconds(5), cachingTime: TimeSpan.FromDays(1), maxRetries: 3, replayOnStatusCode: new [] { 500, 520 });
-        private static readonly AdvancedHttpRequest<string, DateTime> GetTradesRequest = new AdvancedHttpRequest<string, DateTime>(httpClient: BitfinexHttpClient, uriBuilder: GetTradesUriBuilder, maxInterval: TimeSpan.FromSeconds(4), cachingTime: TimeSpan.MaxValue, maxRetries: 3, replayOnStatusCode: new [] { 500, 520 });
-
-        #endregion
-        private BitfinexApi() { }
+            _getSupportedSymbol = new AsyncCachedFunction<CurrencyModel, CurrencyModel, string>(GetSupportedSymbolAsync, TimeSpan.FromMinutes(10));
+        }
 
         #region Public
-        public readonly AsyncCachedFunction<List<string>> GetExchangeSymbols = new AsyncCachedFunction<List<string>>(GetExchangeSymbolsAsync, TimeSpan.FromMinutes(10));
-        private static async Task<List<string>> GetExchangeSymbolsAsync()
+        public readonly AsyncCachedFunction<List<string>> GetExchangeSymbols;
+        private async Task<List<string>> GetExchangeSymbolsAsync()
         {
-            var response = await GetExchangeSymbolsRequest.ExecuteAsync();
+            var response = await _bitfinexApiWrapper.RestClient.CallEndpointAsync(BitfinexApiWrapper.BitfinexApiEndpointNames.Symbols);
             return JsonConvert.DeserializeObject<List<string>>(response);
         }
 
-        public AsyncRateLimitedFunction<CurrencyModel, CurrencyModel, DateTime, double> GetExchangeRate = new AsyncRateLimitedFunction<CurrencyModel, CurrencyModel, DateTime, double>(GetNearestExchangeRateAsync, GetTradesRequest.MaxInterval, DoNotRateLimitGetExchangeRateAsync);
-        private static async Task<double> GetNearestExchangeRateAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, DateTime dateTime)
+        public AsyncTimeRateLimitedFunction<CurrencyModel, CurrencyModel, DateTime, double> GetExchangeRate;
+        private async Task<double> GetNearestExchangeRateAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, DateTime dateTime)
         {
-            var exchangeRateSymbol = await GetSupportedSymbol.ExecuteAsync(originCurrency, targetCurrency);
+            var exchangeRateSymbol = await _getSupportedSymbol.ExecuteAsync(originCurrency, targetCurrency);
             var searchInMiliseconds = dateTime.ToUnixTimeMilliseconds();
             var end = GetEndDateTimeForApiCall(dateTime);
 
             var maxTradeOffset = 3600000;
             var lastTradeTime = 0L;
             var lastTradePrice = 0.0;
-            var trades = await GetTradesRequest.ExecuteAsync(exchangeRateSymbol, end);
+            var trades = await _bitfinexApiWrapper.RestClient.CallEndpointAsync(BitfinexApiWrapper.BitfinexApiEndpointNames.Trades, exchangeRateSymbol, end);
             foreach (var trade in JArray.Parse(trades))
             {
                 var items = trade as JArray;
@@ -86,22 +85,22 @@ namespace CryptoBudged.ThirdPartyApi
 
             return lastTradePrice;
         }
-        private static DateTime GetEndDateTimeForApiCall(DateTime dateTime)
+        private DateTime GetEndDateTimeForApiCall(DateTime dateTime)
             => dateTime.AddMinutes(4);
-        private static async Task<bool> DoNotRateLimitGetExchangeRateAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, DateTime dateTime)
+        private async Task<bool> DoNotRateLimitGetExchangeRateAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, DateTime dateTime)
         {
             var end = GetEndDateTimeForApiCall(dateTime);
-            var symbol = await GetSupportedSymbol.ExecuteAsync(originCurrency, targetCurrency);
-            return GetTradesRequest.IsCached(symbol, end);
+            var symbol = await _getSupportedSymbol.ExecuteAsync(originCurrency, targetCurrency);
+            return _bitfinexApiWrapper.RestClient.IsCached(BitfinexApiWrapper.BitfinexApiEndpointNames.Trades, symbol, end);
         }
 
         public async Task<bool> DoExchangeRatesExist(CurrencyModel originCurrency, CurrencyModel targetCurrency)
-            => !string.IsNullOrEmpty(await GetSupportedSymbol.ExecuteAsync(originCurrency, targetCurrency));
+            => !string.IsNullOrEmpty(await _getSupportedSymbol.ExecuteAsync(originCurrency, targetCurrency));
         #endregion
 
         #region Private
-        private static readonly AsyncCachedFunction<CurrencyModel, CurrencyModel, string> GetSupportedSymbol = new AsyncCachedFunction<CurrencyModel, CurrencyModel, string>(GetSupportedSymbolAsync, TimeSpan.FromMinutes(10));
-        private static async Task<string> GetSupportedSymbolAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency)
+        private readonly AsyncCachedFunction<CurrencyModel, CurrencyModel, string> _getSupportedSymbol;
+        private async Task<string> GetSupportedSymbolAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency)
         {
             var exchangeRateSymbols = await Instance.GetExchangeSymbols.ExecuteAsync();
             exchangeRateSymbols = exchangeRateSymbols.Select(x => x.ToUpper()).ToList();
@@ -125,5 +124,10 @@ namespace CryptoBudged.ThirdPartyApi
         #endregion
 
         public static BitfinexApi Instance { get; } = new BitfinexApi();
+
+        public void Dispose()
+        {
+            _bitfinexApiWrapper?.Dispose();
+        }
     }
 }

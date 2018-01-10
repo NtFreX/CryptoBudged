@@ -3,45 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CryptoBudged.Extensions;
-using CryptoBudged.Helpers;
 using CryptoBudged.Models;
+using CryptoBudged.ThirdPartyApi.Wrapper;
 using Newtonsoft.Json.Linq;
+using NtFreX.RestClient.NET.Flow;
 
 namespace CryptoBudged.ThirdPartyApi
 {
-    public class BinanceApi : RestApiClient
+    public class BinanceApi : IDisposable
     {
-        private static readonly int[] StatusCodesToRetry = { 500, 520 };
+        private readonly BinanceApiWrapper _binanceApiWrapper = new BinanceApiWrapper("", "");
 
-        private BinanceApi() 
-            : base(419, 5000, new (string Name, Func<object[], string> UriBuilder, TimeSpan MaxInterval, TimeSpan CachingTime, int Retries, int[] StatusCodesToRetry)[]
-            {
-                (Name: BinanceApiEndpointNames.ExchangeInfo, UriBuilder: args => "https://www.binance.com/api/v1/exchangeInfo", MaxInterval: TimeSpan.FromSeconds(5), CachingTime: TimeSpan.FromDays(1), Retries: 3, StatusCodesToRetry: StatusCodesToRetry),
-                (Name: BinanceApiEndpointNames.AggregatedTrades, UriBuilder: args => $"https://www.binance.com/api/v1/aggTrades?symbol={args[0]}&startTime={((DateTime)args[1]).ToUnixTimeMilliseconds()}&endTime={((DateTime)args[2]).ToUnixTimeMilliseconds()}", MaxInterval: TimeSpan.FromSeconds(3), CachingTime: TimeSpan.MaxValue, Retries: 3, StatusCodesToRetry: StatusCodesToRetry),
-                (Name: BinanceApiEndpointNames.Trades, UriBuilder: args => $"https://www.binance.com/api/v1/trades?symbol={args[0]}", MaxInterval: TimeSpan.FromSeconds(3), CachingTime: TimeSpan.MaxValue, Retries: 3, StatusCodesToRetry: StatusCodesToRetry)
-            })
+        private BinanceApi()
         {
             GetExchangeSymbols = new AsyncCachedFunction<List<string>>(GetExchangeSymbolsAsync, TimeSpan.FromMinutes(10));
-            GetExchangeRate = new AsyncRateLimitedFunction<CurrencyModel, CurrencyModel, DateTime, double>(GetExchangeRateAsync, GetMaxInterval(BinanceApiEndpointNames.AggregatedTrades), DoNotRateLimitGetExchangeRateAsync);
+            GetExchangeRate = new AsyncTimeRateLimitedFunction<CurrencyModel, CurrencyModel, DateTime, double>(GetExchangeRateAsync, _binanceApiWrapper.RestClient.MinInterval[BinanceApiWrapper.BinanceApiEndpointNames.AggregatedTrades], DoNotRateLimitGetExchangeRateAsync);
 
             _getSupportedSymbol = new AsyncCachedFunction<CurrencyModel, CurrencyModel, string>(GetSupportedSymbolAsync, TimeSpan.FromMinutes(10));
         }
 
         #region Public
-        public readonly AsyncRateLimitedFunction<CurrencyModel, CurrencyModel, DateTime, double> GetExchangeRate;
+        public readonly AsyncTimeRateLimitedFunction<CurrencyModel, CurrencyModel, DateTime, double> GetExchangeRate;
         private async Task<double> GetExchangeRateAsync(CurrencyModel originCurrency, CurrencyModel targetCurrency, DateTime dateTime)
         {
             var startAndEnd = GetStartAndEndForGetExchangeRate(dateTime);
             var symbol = await _getSupportedSymbol.ExecuteAsync(originCurrency, targetCurrency);
             var searchInMiliseconds = dateTime.ToUnixTimeMilliseconds();
 
-            var trades = await CallEndpointAsync(BinanceApiEndpointNames.AggregatedTrades, symbol, startAndEnd.Start, startAndEnd.End);
+            var trades = await _binanceApiWrapper.RestClient.CallEndpointAsync(BinanceApiWrapper.BinanceApiEndpointNames.AggregatedTrades, symbol, startAndEnd.Start, startAndEnd.End);
             var amount = GetNearestPrice(searchInMiliseconds, trades, items => items.Value<long>("T"), items => items.Value<double>("p"), false);
             if (amount != null)
                 return amount.Value;
 
             //TODO: is this needed because no aggregated trades exists allready
-            trades = await CallEndpointAsync(BinanceApiEndpointNames.Trades, symbol);
+            trades = await _binanceApiWrapper.RestClient.CallEndpointAsync(BinanceApiWrapper.BinanceApiEndpointNames.Trades, symbol);
             amount = GetNearestPrice(searchInMiliseconds, trades, items => items.Value<long>("time"), items => items.Value<double>("price"), true);
             if (amount != null)
                 return amount.Value;
@@ -117,7 +112,7 @@ namespace CryptoBudged.ThirdPartyApi
         {
             var startAndEnd = GetStartAndEndForGetExchangeRate(dateTime);
             var symbol = await _getSupportedSymbol.ExecuteAsync(originCurrency, targetCurrency);
-            return IsCached(BinanceApiEndpointNames.AggregatedTrades, symbol, startAndEnd.Start, startAndEnd.End);
+            return _binanceApiWrapper.RestClient.IsCached(BinanceApiWrapper.BinanceApiEndpointNames.AggregatedTrades, symbol, startAndEnd.Start, startAndEnd.End);
         }
         private (DateTime Start, DateTime End) GetStartAndEndForGetExchangeRate(DateTime dateTime)
             => (dateTime.AddMinutes(-5), dateTime.AddMinutes(5));
@@ -125,7 +120,7 @@ namespace CryptoBudged.ThirdPartyApi
         public readonly AsyncCachedFunction<List<string>> GetExchangeSymbols;
         private async Task<List<string>> GetExchangeSymbolsAsync()
         {
-            var response = await CallEndpointAsync(BinanceApiEndpointNames.ExchangeInfo);
+            var response = await _binanceApiWrapper.RestClient.CallEndpointAsync(BinanceApiWrapper.BinanceApiEndpointNames.ExchangeInfo);
             var json = JObject.Parse(response);
             return json.Value<JArray>("symbols").Select(x =>
             {
@@ -162,14 +157,12 @@ namespace CryptoBudged.ThirdPartyApi
             return null;
         }
         #endregion
+        
+        public void Dispose()
+        {
+            _binanceApiWrapper?.Dispose();
+        }
 
         public static BinanceApi Instance { get; } = new BinanceApi();
-
-        private static class BinanceApiEndpointNames
-        {
-            public static string ExchangeInfo { get; } = nameof(ExchangeInfo);
-            public static string AggregatedTrades { get; } = nameof(AggregatedTrades);
-            public static string Trades { get; } = nameof(Trades);
-        }
     }
 }

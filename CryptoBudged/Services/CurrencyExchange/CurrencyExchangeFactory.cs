@@ -68,6 +68,8 @@ namespace CryptoBudged.Services.CurrencyExchange
                 if (await service.CanConvertAsync(originCurrency, targetCurrency))
                     avaiableServices.Add((service, await service.IsRateLimitedAsync(originCurrency, targetCurrency, dateTime)));
             }
+
+            //TODO: ignore rate limit and use some kind of prefered platform
             var bestMatch = avaiableServices.OrderBy(x => x.RateLimit.Ticks).First();
             return await bestMatch.Service.ConvertAsync(originCurrency, targetCurrency, amount, dateTime);
         }

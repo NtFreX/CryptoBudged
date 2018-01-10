@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CryptoBudged.Factories;
-using CryptoBudged.Helpers;
 using CryptoBudged.Models;
 using CryptoBudged.Services.CurrencyExchange;
+using NtFreX.RestClient.NET.Flow;
 
 namespace CryptoBudged.Services
 {
